@@ -1,35 +1,50 @@
-name: SonarQube
+name: SonarCloud Analysis
+
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
-    name: Build and analyze
+    name: Build and analyze with SonarCloud
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      #Descargar el código fuente completo (no solo el último commit)
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 17
+          fetch-depth: 0
+
+      #Instalar Java 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available
-      - name: Cache SonarQube packages
+          java-version: 21
+          distribution: 'zulu'
+
+      #Cache SonarCloud
+      - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
+      #Cache Gradle
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
+
+      # Ejecutar build + tests + coverage + análisis SonarCloud
       - name: Build and analyze with SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -39,4 +54,3 @@ jobs:
             -Dsonar.organization=danielarodriguez4 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=$SONAR_TOKEN
-
