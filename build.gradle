@@ -61,13 +61,14 @@ tasks.named('test') {
 }
 
 jacoco {
-	toolVersion = "0.8.10" 
+	toolVersion = "0.8.10"
 }
 
 tasks.jacocoTestReport {
 	dependsOn test
 	reports {
 		xml.required = true
+		xml.outputLocation = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
 		html.required = true
 	}
 }
@@ -77,7 +78,8 @@ sonar {
 		property "sonar.projectKey", "danielarodriguez4_billing-and-payments-p6f5"
 		property "sonar.organization", "danielarodriguez4"
 		property "sonar.host.url", "https://sonarcloud.io"
-		property "sonar.java.coveragePlugin", "jacoco" 
-		property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+		property "sonar.login", System.getenv("SONAR_TOKEN")
+		property "sonar.java.coveragePlugin", "jacoco"
+		property "sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacoco/test/jacocoTestReport.xml"
 	}
 }
