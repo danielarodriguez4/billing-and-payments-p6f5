@@ -77,3 +77,15 @@ sonar {
 tasks.named('sonarqube') {
 	dependsOn test, jacocoTestReport
 }
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = true
+		xml.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+		html.outputLocation = layout.buildDirectory.dir("reports/jacoco/test/html")
+		csv.outputLocation = layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.csv")
+	}
+}
