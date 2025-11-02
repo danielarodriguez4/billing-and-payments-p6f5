@@ -84,16 +84,17 @@ class InvoiceControllerTest {
     }
 
     @Test
-        // Assert
     void testGetAllInvoices() {
-
         // Arrange
-        ResponseEntity<ApiResponse<List<InvoiceResponse>>> result = invoiceController.getAllInvoices();
+        when(invoiceService.getAllInvoices()).thenReturn(List.of(response));
 
         // Act
+        ResponseEntity<ApiResponse<List<InvoiceResponse>>> result = invoiceController.getAllInvoices();
+
+        // Assert
         assertEquals(200, result.getStatusCode().value());
         Assertions.assertNotNull(result.getBody());
-        // Assert
         assertEquals(1, result.getBody().getData().size());
+        Mockito.verify(invoiceService, Mockito.times(1)).getAllInvoices();
     }
 }
