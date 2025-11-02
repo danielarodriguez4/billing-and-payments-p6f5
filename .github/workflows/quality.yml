@@ -53,4 +53,4 @@ jobs:
             -Dsonar.projectKey=danielarodriguez4_billing-and-payments-p6f5 \
             -Dsonar.organization=danielarodriguez4 \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=$SONAR_TOKEN
+            -Dsonar.login=$SONAR_TOKEN
