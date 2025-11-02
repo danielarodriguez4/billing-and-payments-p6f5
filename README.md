@@ -1,3 +1,10 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=coverage)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=danielarodriguez4_billing-and-payments-p6f5&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=danielarodriguez4_billing-and-payments-p6f5)
+
 # Billing and Payments API
 
 A comprehensive Spring Boot backend system for managing invoices, shipments, and billing operations with microservices architecture simulation.
