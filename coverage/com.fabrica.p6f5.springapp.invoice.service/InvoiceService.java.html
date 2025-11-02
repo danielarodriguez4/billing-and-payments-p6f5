@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.service</a> &gt; <span class="el_source">InvoiceService.java</span></div><h1>InvoiceService.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.service;
+
+import com.fabrica.p6f5.springapp.audit.model.AuditLog;
+import com.fabrica.p6f5.springapp.audit.service.AuditService;
+import com.fabrica.p6f5.springapp.exception.BusinessException;
+import com.fabrica.p6f5.springapp.exception.ResourceNotFoundException;
+import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
+import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
+import com.fabrica.p6f5.springapp.invoice.dto.UpdateInvoiceRequest;
+import com.fabrica.p6f5.springapp.invoice.model.Invoice;
+import com.fabrica.p6f5.springapp.invoice.model.InvoiceItem;
+import com.fabrica.p6f5.springapp.invoice.model.InvoiceShipment;
+import com.fabrica.p6f5.springapp.invoice.repository.InvoiceItemRepository;
+import com.fabrica.p6f5.springapp.invoice.repository.InvoiceRepository;
+import com.fabrica.p6f5.springapp.invoice.repository.InvoiceShipmentRepository;
+import com.fabrica.p6f5.springapp.shipment.model.Shipment;
+import com.fabrica.p6f5.springapp.shipment.repository.ShipmentRepository;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * Invoice Service following Single Responsibility Principle.
+ * Handles all invoice business logic.
+ */
+@Service
+<span class="fc" id="L36">public class InvoiceService {</span>
+    
+<span class="fc" id="L38">    private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);</span>
+    
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    
+    @Autowired
+    private InvoiceItemRepository invoiceItemRepository;
+    
+    @Autowired
+    private InvoiceShipmentRepository invoiceShipmentRepository;
+    
+    @Autowired
+    private ShipmentRepository shipmentRepository;
+    
+    @Autowired
+    private AuditService auditService;
+    
+    /**
+     * Create a draft invoice
+     */
+    @Transactional
+    public InvoiceResponse createDraftInvoice(CreateInvoiceRequest request, Long createdBy) {
+<span class="nc" id="L60">        logger.info(&quot;Creating draft invoice for client: {}&quot;, request.getClientName());</span>
+        
+        // Generate unique invoice number
+<span class="nc" id="L63">        String invoiceNumber = generateInvoiceNumber();</span>
+        
+        // Create invoice
+<span class="nc" id="L66">        Invoice invoice = new Invoice();</span>
+<span class="nc" id="L67">        invoice.setInvoiceNumber(invoiceNumber);</span>
+<span class="nc" id="L68">        invoice.setClientName(request.getClientName());</span>
+<span class="nc" id="L69">        invoice.setInvoiceDate(request.getInvoiceDate());</span>
+<span class="nc" id="L70">        invoice.setDueDate(request.getDueDate());</span>
+<span class="nc" id="L71">        invoice.setStatus(Invoice.InvoiceStatus.DRAFT);</span>
+<span class="nc" id="L72">        invoice.setCurrency(request.getCurrency());</span>
+<span class="nc" id="L73">        invoice.setCreatedBy(createdBy);</span>
+        
+        // Calculate amounts
+<span class="nc" id="L76">        BigDecimal subtotal = calculateSubtotal(request.getItems());</span>
+<span class="nc" id="L77">        invoice.setSubtotal(subtotal);</span>
+<span class="nc" id="L78">        invoice.setTaxAmount(request.getTaxAmount());</span>
+<span class="nc" id="L79">        invoice.setTotalAmount(subtotal.add(request.getTaxAmount()));</span>
+        
+        // Save invoice
+<span class="nc" id="L82">        Invoice savedInvoice = invoiceRepository.save(invoice);</span>
+        
+        // Add items
+<span class="nc" id="L85">        List&lt;InvoiceItem&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (CreateInvoiceRequest.InvoiceItemRequest itemRequest : request.getItems()) {</span>
+<span class="nc" id="L87">            InvoiceItem item = new InvoiceItem();</span>
+<span class="nc" id="L88">            item.setInvoice(savedInvoice);</span>
+<span class="nc" id="L89">            item.setDescription(itemRequest.getDescription());</span>
+<span class="nc" id="L90">            item.setQuantity(itemRequest.getQuantity());</span>
+<span class="nc" id="L91">            item.setUnitPrice(itemRequest.getUnitPrice());</span>
+<span class="nc" id="L92">            item.calculateTotal();</span>
+<span class="nc" id="L93">            items.add(item);</span>
+            
+            // Link to shipment if provided
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (itemRequest.getShipmentId() != null) {</span>
+<span class="nc" id="L97">                Shipment shipment = shipmentRepository.findById(itemRequest.getShipmentId())</span>
+<span class="nc" id="L98">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Shipment not found with id: &quot; + itemRequest.getShipmentId()));</span>
+<span class="nc" id="L99">                item.setShipment(shipment);</span>
+            }
+<span class="nc" id="L101">        }</span>
+<span class="nc" id="L102">        invoiceItemRepository.saveAll(items);</span>
+        
+        // Link shipments
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (request.getShipmentIds() != null &amp;&amp; !request.getShipmentIds().isEmpty()) {</span>
+<span class="nc" id="L106">            List&lt;InvoiceShipment&gt; invoiceShipments = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            for (Long shipmentId : request.getShipmentIds()) {</span>
+<span class="nc" id="L108">                Shipment shipment = shipmentRepository.findById(shipmentId)</span>
+<span class="nc" id="L109">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Shipment not found with id: &quot; + shipmentId));</span>
+                
+                // Check if shipment is already linked to an invoice
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (invoiceShipmentRepository.existsByShipmentId(shipmentId)) {</span>
+<span class="nc" id="L113">                    throw new BusinessException(&quot;Shipment &quot; + shipmentId + &quot; is already linked to an invoice&quot;);</span>
+                }
+                
+<span class="nc" id="L116">                InvoiceShipment invoiceShipment = new InvoiceShipment();</span>
+<span class="nc" id="L117">                invoiceShipment.setInvoice(savedInvoice);</span>
+<span class="nc" id="L118">                invoiceShipment.setShipment(shipment);</span>
+<span class="nc" id="L119">                invoiceShipments.add(invoiceShipment);</span>
+<span class="nc" id="L120">            }</span>
+<span class="nc" id="L121">            invoiceShipmentRepository.saveAll(invoiceShipments);</span>
+        }
+        
+        // Log audit event
+<span class="nc" id="L125">        auditService.logEvent(&quot;Invoice&quot;, savedInvoice.getId(), AuditLog.AuditAction.CREATE,</span>
+            createdBy, null, savedInvoice, &quot;Created draft invoice&quot;);
+        
+<span class="nc" id="L128">        logger.info(&quot;Draft invoice created with id: {}&quot;, savedInvoice.getId());</span>
+        
+<span class="nc" id="L130">        return InvoiceResponse.fromEntity(invoiceRepository.findById(savedInvoice.getId()).get());</span>
+    }
+    
+    /**
+     * Update a draft invoice
+     */
+    @Transactional
+    public InvoiceResponse updateDraftInvoice(Long invoiceId, UpdateInvoiceRequest request, Long updatedBy) {
+<span class="nc" id="L138">        logger.info(&quot;Updating draft invoice id: {}&quot;, invoiceId);</span>
+        
+<span class="nc" id="L140">        Invoice invoice = invoiceRepository.findById(invoiceId)</span>
+<span class="nc" id="L141">            .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Invoice not found with id: &quot; + invoiceId));</span>
+        
+        // Check if invoice can be edited
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (!invoice.canBeEdited()) {</span>
+<span class="nc" id="L145">            throw new BusinessException(&quot;Invoice cannot be edited. Status: &quot; + invoice.getStatus());</span>
+        }
+        
+        // Optimistic concurrency control
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (request.getVersion() != null &amp;&amp; !request.getVersion().equals(invoice.getVersion())) {</span>
+<span class="nc" id="L150">            throw new BusinessException(&quot;Invoice has been modified by another user. Please refresh and try again.&quot;);</span>
+        }
+        
+        // Save history before updating
+<span class="nc" id="L154">        auditService.saveInvoiceHistory(invoice.getId(), invoice.getVersion(),</span>
+<span class="nc" id="L155">            invoice.getFiscalFolio(), invoice.getInvoiceNumber(), invoice, invoice.getCreatedBy());</span>
+        
+        // Save old data for audit
+<span class="nc" id="L158">        Invoice oldInvoice = copyInvoice(invoice);</span>
+        
+        // Update invoice fields
+<span class="nc" id="L161">        invoice.setClientName(request.getClientName());</span>
+<span class="nc" id="L162">        invoice.setInvoiceDate(request.getInvoiceDate());</span>
+<span class="nc" id="L163">        invoice.setDueDate(request.getDueDate());</span>
+<span class="nc" id="L164">        invoice.setCurrency(request.getCurrency());</span>
+<span class="nc" id="L165">        invoice.setTaxAmount(request.getTaxAmount());</span>
+        
+        // Calculate amounts
+<span class="nc" id="L168">        BigDecimal subtotal = calculateSubtotal(request.getItems());</span>
+<span class="nc" id="L169">        invoice.setSubtotal(subtotal);</span>
+<span class="nc" id="L170">        invoice.setTotalAmount(subtotal.add(request.getTaxAmount()));</span>
+        
+        // Delete old items
+<span class="nc" id="L173">        invoiceItemRepository.deleteByInvoiceId(invoiceId);</span>
+<span class="nc" id="L174">        invoiceShipmentRepository.deleteByInvoiceId(invoiceId);</span>
+        
+        // Add new items
+<span class="nc" id="L177">        List&lt;InvoiceItem&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        for (UpdateInvoiceRequest.InvoiceItemRequest itemRequest : request.getItems()) {</span>
+<span class="nc" id="L179">            InvoiceItem item = new InvoiceItem();</span>
+<span class="nc" id="L180">            item.setInvoice(invoice);</span>
+<span class="nc" id="L181">            item.setDescription(itemRequest.getDescription());</span>
+<span class="nc" id="L182">            item.setQuantity(itemRequest.getQuantity());</span>
+<span class="nc" id="L183">            item.setUnitPrice(itemRequest.getUnitPrice());</span>
+<span class="nc" id="L184">            item.calculateTotal();</span>
+<span class="nc" id="L185">            items.add(item);</span>
+            
+            // Link to shipment if provided
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (itemRequest.getShipmentId() != null) {</span>
+<span class="nc" id="L189">                Shipment shipment = shipmentRepository.findById(itemRequest.getShipmentId())</span>
+<span class="nc" id="L190">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Shipment not found with id: &quot; + itemRequest.getShipmentId()));</span>
+<span class="nc" id="L191">                item.setShipment(shipment);</span>
+            }
+<span class="nc" id="L193">        }</span>
+<span class="nc" id="L194">        invoiceItemRepository.saveAll(items);</span>
+        
+        // Link shipments
+<span class="nc bnc" id="L197" title="All 4 branches missed.">        if (request.getShipmentIds() != null &amp;&amp; !request.getShipmentIds().isEmpty()) {</span>
+<span class="nc" id="L198">            List&lt;InvoiceShipment&gt; invoiceShipments = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            for (Long shipmentId : request.getShipmentIds()) {</span>
+<span class="nc" id="L200">                Shipment shipment = shipmentRepository.findById(shipmentId)</span>
+<span class="nc" id="L201">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Shipment not found with id: &quot; + shipmentId));</span>
+                
+                // Check if shipment is already linked to another invoice
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                if (invoiceShipmentRepository.existsByShipmentId(shipmentId)) {</span>
+<span class="nc" id="L205">                    Optional&lt;InvoiceShipment&gt; existing = invoiceShipmentRepository.findByInvoiceIdAndShipmentId(invoiceId, shipmentId);</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                    if (!existing.isPresent()) {</span>
+<span class="nc" id="L207">                        throw new BusinessException(&quot;Shipment &quot; + shipmentId + &quot; is already linked to another invoice&quot;);</span>
+                    }
+                }
+                
+<span class="nc" id="L211">                InvoiceShipment invoiceShipment = new InvoiceShipment();</span>
+<span class="nc" id="L212">                invoiceShipment.setInvoice(invoice);</span>
+<span class="nc" id="L213">                invoiceShipment.setShipment(shipment);</span>
+<span class="nc" id="L214">                invoiceShipments.add(invoiceShipment);</span>
+<span class="nc" id="L215">            }</span>
+<span class="nc" id="L216">            invoiceShipmentRepository.saveAll(invoiceShipments);</span>
+        }
+        
+        // Save updated invoice
+<span class="nc" id="L220">        Invoice updatedInvoice = invoiceRepository.save(invoice);</span>
+        
+        // Log audit event
+<span class="nc" id="L223">        auditService.logEvent(&quot;Invoice&quot;, updatedInvoice.getId(), AuditLog.AuditAction.UPDATE,</span>
+            updatedBy, oldInvoice, updatedInvoice, &quot;Updated draft invoice&quot;);
+        
+<span class="nc" id="L226">        logger.info(&quot;Draft invoice updated with id: {}&quot;, updatedInvoice.getId());</span>
+        
+<span class="nc" id="L228">        return InvoiceResponse.fromEntity(invoiceRepository.findById(updatedInvoice.getId()).get());</span>
+    }
+    
+    /**
+     * Issue an invoice
+     */
+    @Transactional
+    public InvoiceResponse issueInvoice(Long invoiceId, Long issuedBy) {
+<span class="nc" id="L236">        logger.info(&quot;Issuing invoice id: {}&quot;, invoiceId);</span>
+        
+<span class="nc" id="L238">        Invoice invoice = invoiceRepository.findById(invoiceId)</span>
+<span class="nc" id="L239">            .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Invoice not found with id: &quot; + invoiceId));</span>
+        
+        // Check if invoice can be issued
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        if (!invoice.canBeIssued()) {</span>
+<span class="nc" id="L243">            throw new BusinessException(&quot;Invoice cannot be issued. Missing required data or invalid status.&quot;);</span>
+        }
+        
+        // Generate fiscal folio if not exists
+<span class="nc bnc" id="L247" title="All 2 branches missed.">        if (invoice.getFiscalFolio() == null) {</span>
+<span class="nc" id="L248">            String fiscalFolio = generateFiscalFolio();</span>
+<span class="nc" id="L249">            invoice.setFiscalFolio(fiscalFolio);</span>
+        }
+        
+        // Change status to ISSUED
+<span class="nc" id="L253">        invoice.setStatus(Invoice.InvoiceStatus.ISSUED);</span>
+        
+        // Save invoice
+<span class="nc" id="L256">        Invoice issuedInvoice = invoiceRepository.save(invoice);</span>
+        
+        // Log audit event
+<span class="nc" id="L259">        auditService.logEvent(&quot;Invoice&quot;, issuedInvoice.getId(), AuditLog.AuditAction.ISSUE,</span>
+            issuedBy, invoice, issuedInvoice, &quot;Issued invoice&quot;);
+        
+        // Save history
+<span class="nc" id="L263">        auditService.saveInvoiceHistory(issuedInvoice.getId(), issuedInvoice.getVersion(),</span>
+<span class="nc" id="L264">            issuedInvoice.getFiscalFolio(), issuedInvoice.getInvoiceNumber(), issuedInvoice, issuedBy);</span>
+        
+<span class="nc" id="L266">        logger.info(&quot;Invoice issued with fiscal folio: {}&quot;, issuedInvoice.getFiscalFolio());</span>
+        
+<span class="nc" id="L268">        return InvoiceResponse.fromEntity(invoiceRepository.findById(issuedInvoice.getId()).get());</span>
+    }
+    
+    /**
+     * Get invoice by ID
+     */
+    public InvoiceResponse getInvoiceById(Long invoiceId) {
+<span class="nc" id="L275">        Invoice invoice = invoiceRepository.findById(invoiceId)</span>
+<span class="nc" id="L276">            .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Invoice not found with id: &quot; + invoiceId));</span>
+<span class="nc" id="L277">        return InvoiceResponse.fromEntity(invoice);</span>
+    }
+    
+    /**
+     * Get all invoices by status
+     */
+    public List&lt;InvoiceResponse&gt; getInvoicesByStatus(Invoice.InvoiceStatus status) {
+<span class="nc" id="L284">        return invoiceRepository.findByStatusOrderByCreatedAtDesc(status).stream()</span>
+<span class="nc" id="L285">            .map(InvoiceResponse::fromEntity)</span>
+<span class="nc" id="L286">            .collect(Collectors.toList());</span>
+    }
+    
+    /**
+     * Get all invoices
+     */
+    public List&lt;InvoiceResponse&gt; getAllInvoices() {
+<span class="nc" id="L293">        return invoiceRepository.findAll().stream()</span>
+<span class="nc" id="L294">            .map(InvoiceResponse::fromEntity)</span>
+<span class="nc" id="L295">            .collect(Collectors.toList());</span>
+    }
+    
+    /**
+     * Calculate subtotal from items
+     */
+    private BigDecimal calculateSubtotal(List&lt;?&gt; items) {
+<span class="nc bnc" id="L302" title="All 4 branches missed.">        if (items == null || items.isEmpty()) {</span>
+<span class="nc" id="L303">            return BigDecimal.ZERO;</span>
+        }
+<span class="nc" id="L305">        return items.stream()</span>
+<span class="nc" id="L306">            .map(item -&gt; {</span>
+                BigDecimal unitPrice;
+                Integer quantity;
+<span class="nc bnc" id="L309" title="All 2 branches missed.">                if (item instanceof CreateInvoiceRequest.InvoiceItemRequest req) {</span>
+<span class="nc" id="L310">                    unitPrice = req.getUnitPrice();</span>
+<span class="nc" id="L311">                    quantity = req.getQuantity();</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">                } else if (item instanceof UpdateInvoiceRequest.InvoiceItemRequest req) {</span>
+<span class="nc" id="L313">                    unitPrice = req.getUnitPrice();</span>
+<span class="nc" id="L314">                    quantity = req.getQuantity();</span>
+                } else {
+<span class="nc" id="L316">                    return BigDecimal.ZERO;</span>
+                }
+<span class="nc" id="L318">                return unitPrice.multiply(BigDecimal.valueOf(quantity));</span>
+            })
+<span class="nc" id="L320">            .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+    }
+    
+    /**
+     * Generate unique invoice number
+     */
+    private String generateInvoiceNumber() {
+<span class="nc" id="L327">        return &quot;INV-&quot; + UUID.randomUUID().toString().substring(0, 8).toUpperCase() + &quot;-&quot; + System.currentTimeMillis();</span>
+    }
+    
+    /**
+     * Generate unique fiscal folio
+     */
+    private String generateFiscalFolio() {
+<span class="nc" id="L334">        return &quot;FISCAL-&quot; + UUID.randomUUID().toString().substring(0, 16).toUpperCase() + &quot;-&quot; + System.currentTimeMillis();</span>
+    }
+    
+    /**
+     * Copy invoice for history
+     */
+    private Invoice copyInvoice(Invoice invoice) {
+<span class="nc" id="L341">        Invoice copy = new Invoice();</span>
+<span class="nc" id="L342">        copy.setId(invoice.getId());</span>
+<span class="nc" id="L343">        copy.setFiscalFolio(invoice.getFiscalFolio());</span>
+<span class="nc" id="L344">        copy.setInvoiceNumber(invoice.getInvoiceNumber());</span>
+<span class="nc" id="L345">        copy.setClientName(invoice.getClientName());</span>
+<span class="nc" id="L346">        copy.setInvoiceDate(invoice.getInvoiceDate());</span>
+<span class="nc" id="L347">        copy.setDueDate(invoice.getDueDate());</span>
+<span class="nc" id="L348">        copy.setSubtotal(invoice.getSubtotal());</span>
+<span class="nc" id="L349">        copy.setTaxAmount(invoice.getTaxAmount());</span>
+<span class="nc" id="L350">        copy.setTotalAmount(invoice.getTotalAmount());</span>
+<span class="nc" id="L351">        copy.setCurrency(invoice.getCurrency());</span>
+<span class="nc" id="L352">        copy.setStatus(invoice.getStatus());</span>
+<span class="nc" id="L353">        copy.setCreatedBy(invoice.getCreatedBy());</span>
+<span class="nc" id="L354">        copy.setCreatedAt(invoice.getCreatedAt());</span>
+<span class="nc" id="L355">        copy.setUpdatedAt(invoice.getUpdatedAt());</span>
+<span class="nc" id="L356">        copy.setVersion(invoice.getVersion());</span>
+<span class="nc" id="L357">        return copy;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

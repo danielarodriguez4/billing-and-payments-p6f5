@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.controller;
+
+import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * User Controller following Open/Closed Principle.
+ * This controller is open for extension but closed for modification.
+ */
+@RestController
+@RequestMapping(&quot;/api/users&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="fc" id="L21">public class UserController {</span>
+    
+    @Autowired
+    private UserService userService;
+    
+    /**
+     * Get all users (Admin only).
+     * 
+     * @return ResponseEntity with list of users
+     */
+    @GetMapping
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;User&gt;&gt;&gt; getAllUsers() {
+        try {
+<span class="nc" id="L35">            List&lt;User&gt; users = userService.findAll();</span>
+<span class="nc" id="L36">            return ResponseEntity.ok(ApiResponse.success(&quot;Users retrieved successfully&quot;, users));</span>
+<span class="nc" id="L37">        } catch (Exception e) {</span>
+<span class="nc" id="L38">            return ResponseEntity.status(500)</span>
+<span class="nc" id="L39">                    .body(ApiResponse.error(&quot;Failed to retrieve users: &quot; + e.getMessage()));</span>
+        }
+    }
+    
+    /**
+     * Get user by ID.
+     * 
+     * @param id the user ID
+     * @return ResponseEntity with user details
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;User&gt;&gt; getUserById(@PathVariable Long id) {
+        try {
+<span class="nc" id="L52">            Optional&lt;User&gt; user = userService.findById(id);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (user.isPresent()) {</span>
+<span class="nc" id="L54">                return ResponseEntity.ok(ApiResponse.success(&quot;User retrieved successfully&quot;, user.get()));</span>
+            } else {
+<span class="nc" id="L56">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L58">        } catch (Exception e) {</span>
+<span class="nc" id="L59">            return ResponseEntity.status(500)</span>
+<span class="nc" id="L60">                    .body(ApiResponse.error(&quot;Failed to retrieve user: &quot; + e.getMessage()));</span>
+        }
+    }
+    
+    /**
+     * Update user (Admin only or own profile).
+     * 
+     * @param id the user ID
+     * @param user the updated user data
+     * @return ResponseEntity with updated user
+     */
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN') or @userService.findById(#id).get().username == authentication.name&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;User&gt;&gt; updateUser(@PathVariable Long id, @RequestBody User user) {
+        try {
+<span class="nc" id="L75">            Optional&lt;User&gt; existingUser = userService.findById(id);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (existingUser.isPresent()) {</span>
+<span class="nc" id="L77">                User updatedUser = userService.save(user);</span>
+<span class="nc" id="L78">                return ResponseEntity.ok(ApiResponse.success(&quot;User updated successfully&quot;, updatedUser));</span>
+            } else {
+<span class="nc" id="L80">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L82">        } catch (Exception e) {</span>
+<span class="nc" id="L83">            return ResponseEntity.status(500)</span>
+<span class="nc" id="L84">                    .body(ApiResponse.error(&quot;Failed to update user: &quot; + e.getMessage()));</span>
+        }
+    }
+    
+    /**
+     * Delete user (Admin only).
+     * 
+     * @param id the user ID
+     * @return ResponseEntity with deletion result
+     */
+    @DeleteMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;String&gt;&gt; deleteUser(@PathVariable Long id) {
+        try {
+<span class="nc" id="L98">            Optional&lt;User&gt; user = userService.findById(id);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (user.isPresent()) {</span>
+<span class="nc" id="L100">                userService.deleteById(id);</span>
+<span class="nc" id="L101">                return ResponseEntity.ok(ApiResponse.success(&quot;User deleted successfully&quot;, null));</span>
+            } else {
+<span class="nc" id="L103">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L105">        } catch (Exception e) {</span>
+<span class="nc" id="L106">            return ResponseEntity.status(500)</span>
+<span class="nc" id="L107">                    .body(ApiResponse.error(&quot;Failed to delete user: &quot; + e.getMessage()));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

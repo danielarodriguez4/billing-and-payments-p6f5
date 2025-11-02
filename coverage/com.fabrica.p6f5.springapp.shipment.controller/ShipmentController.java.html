@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShipmentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.shipment.controller</a> &gt; <span class="el_source">ShipmentController.java</span></div><h1>ShipmentController.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.shipment.controller;
+
+import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.shipment.model.Shipment;
+import com.fabrica.p6f5.springapp.shipment.repository.ShipmentRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * Shipment Controller following Single Responsibility Principle.
+ * Handles all shipment-related HTTP requests.
+ */
+@RestController
+@RequestMapping(&quot;/api/v1/shipments&quot;)
+@Tag(name = &quot;Shipment API&quot;, description = &quot;API for managing shipments&quot;)
+<span class="fc" id="L22">public class ShipmentController {</span>
+    
+    @Autowired
+    private ShipmentRepository shipmentRepository;
+    
+    /**
+     * Get all shipments
+     */
+    @GetMapping
+    @Operation(summary = &quot;Get all shipments&quot;, description = &quot;Retrieves all shipments&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;Shipment&gt;&gt;&gt; getAllShipments() {
+<span class="nc" id="L33">        List&lt;Shipment&gt; shipments = shipmentRepository.findAll();</span>
+<span class="nc" id="L34">        ApiResponse&lt;List&lt;Shipment&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Shipments retrieved successfully&quot;,
+            shipments
+        );
+<span class="nc" id="L39">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get shipments by status
+     */
+    @GetMapping(&quot;/status/{status}&quot;)
+    @Operation(summary = &quot;Get shipments by status&quot;, description = &quot;Retrieves shipments filtered by status&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;Shipment&gt;&gt;&gt; getShipmentsByStatus(
+            @Parameter(description = &quot;Shipment status&quot;) @PathVariable String status) {
+<span class="nc" id="L49">        Shipment.ShipmentStatus shipmentStatus = Shipment.ShipmentStatus.valueOf(status.toUpperCase());</span>
+<span class="nc" id="L50">        List&lt;Shipment&gt; shipments = shipmentRepository.findByStatusOrderByCreatedAtDesc(shipmentStatus);</span>
+<span class="nc" id="L51">        ApiResponse&lt;List&lt;Shipment&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Shipments retrieved successfully&quot;,
+            shipments
+        );
+<span class="nc" id="L56">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get unlinked shipments
+     */
+    @GetMapping(&quot;/unlinked&quot;)
+    @Operation(summary = &quot;Get unlinked shipments&quot;, description = &quot;Retrieves shipments not yet linked to any invoice&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;Shipment&gt;&gt;&gt; getUnlinkedShipments() {
+<span class="nc" id="L65">        List&lt;Shipment&gt; shipments = shipmentRepository.findUnlinkedShipments();</span>
+<span class="nc" id="L66">        ApiResponse&lt;List&lt;Shipment&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Unlinked shipments retrieved successfully&quot;,
+            shipments
+        );
+<span class="nc" id="L71">        return ResponseEntity.ok(apiResponse);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

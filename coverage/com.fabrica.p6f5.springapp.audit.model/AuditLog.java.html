@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuditLog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.audit.model</a> &gt; <span class="el_source">AuditLog.java</span></div><h1>AuditLog.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.audit.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.time.LocalDateTime;
+
+/**
+ * AuditLog entity following Single Responsibility Principle.
+ * Tracks all changes across the system for audit purposes.
+ */
+@Entity
+@Table(name = &quot;audit_logs&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuditLog {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;audit_log_id&quot;)
+    private Long id;
+    
+    @Column(name = &quot;entity_type&quot;, nullable = false, length = 100)
+    private String entityType;
+    
+    @Column(name = &quot;entity_id&quot;, nullable = false)
+    private Long entityId;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;action&quot;, nullable = false, length = 50)
+    private AuditAction action;
+    
+    @Column(name = &quot;changed_by&quot;)
+    private Long changedBy;
+    
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = &quot;old_data&quot;, columnDefinition = &quot;jsonb&quot;)
+    private String oldData;
+    
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = &quot;new_data&quot;, columnDefinition = &quot;jsonb&quot;)
+    private String newData;
+    
+    @Column(name = &quot;change_summary&quot;, columnDefinition = &quot;TEXT&quot;)
+    private String changeSummary;
+    
+    @Column(name = &quot;ip_address&quot;, length = 45)
+    private String ipAddress;
+    
+    @Column(name = &quot;user_agent&quot;, columnDefinition = &quot;TEXT&quot;)
+    private String userAgent;
+    
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L63">        createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L64">    }</span>
+    
+    /**
+     * Audit action enum
+     */
+<span class="fc" id="L69">    public enum AuditAction {</span>
+<span class="fc" id="L70">        CREATE,</span>
+<span class="fc" id="L71">        UPDATE,</span>
+<span class="fc" id="L72">        DELETE,</span>
+<span class="fc" id="L73">        ISSUE,</span>
+<span class="fc" id="L74">        REVERT,</span>
+<span class="fc" id="L75">        PUBLISH</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.service</a> &gt; <span class="el_source">JwtService.java</span></div><h1>JwtService.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+/**
+ * JWT Service following Single Responsibility Principle.
+ * This service is responsible only for JWT token operations.
+ */
+@Service
+<span class="fc" id="L23">public class JwtService {</span>
+    
+    @Value(&quot;${jwt.secret}&quot;)
+    private String secretKey;
+    
+    @Value(&quot;${jwt.expiration}&quot;)
+    private long jwtExpiration;
+    
+    /**
+     * Extract username from JWT token.
+     * 
+     * @param token the JWT token
+     * @return the username
+     */
+    public String extractUsername(String token) {
+<span class="nc" id="L38">        return extractClaim(token, Claims::getSubject);</span>
+    }
+    
+    /**
+     * Extract a specific claim from JWT token.
+     * 
+     * @param token the JWT token
+     * @param claimsResolver function to extract the claim
+     * @return the extracted claim
+     */
+    public &lt;T&gt; T extractClaim(String token, Function&lt;Claims, T&gt; claimsResolver) {
+<span class="nc" id="L49">        final Claims claims = extractAllClaims(token);</span>
+<span class="nc" id="L50">        return claimsResolver.apply(claims);</span>
+    }
+    
+    /**
+     * Generate JWT token for user.
+     * 
+     * @param userDetails the user details
+     * @return the JWT token
+     */
+    public String generateToken(UserDetails userDetails) {
+<span class="nc" id="L60">        return generateToken(new HashMap&lt;&gt;(), userDetails);</span>
+    }
+    
+    /**
+     * Generate JWT token with extra claims.
+     * 
+     * @param extraClaims additional claims
+     * @param userDetails the user details
+     * @return the JWT token
+     */
+    public String generateToken(Map&lt;String, Object&gt; extraClaims, UserDetails userDetails) {
+<span class="nc" id="L71">        return buildToken(extraClaims, userDetails, jwtExpiration);</span>
+    }
+    
+    /**
+     * Build JWT token with specified expiration.
+     * 
+     * @param extraClaims additional claims
+     * @param userDetails the user details
+     * @param expiration the expiration time in milliseconds
+     * @return the JWT token
+     */
+    private String buildToken(Map&lt;String, Object&gt; extraClaims, UserDetails userDetails, long expiration) {
+<span class="nc" id="L83">        return Jwts.builder()</span>
+<span class="nc" id="L84">                .setClaims(extraClaims)</span>
+<span class="nc" id="L85">                .setSubject(userDetails.getUsername())</span>
+<span class="nc" id="L86">                .setIssuedAt(new Date(System.currentTimeMillis()))</span>
+<span class="nc" id="L87">                .setExpiration(new Date(System.currentTimeMillis() + expiration))</span>
+<span class="nc" id="L88">                .signWith(getSignInKey(), SignatureAlgorithm.HS256)</span>
+<span class="nc" id="L89">                .compact();</span>
+    }
+    
+    /**
+     * Check if token is valid for user.
+     * 
+     * @param token the JWT token
+     * @param userDetails the user details
+     * @return true if valid, false otherwise
+     */
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+<span class="nc" id="L100">        final String username = extractUsername(token);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        return (username.equals(userDetails.getUsername())) &amp;&amp; !isTokenExpired(token);</span>
+    }
+    
+    /**
+     * Check if token is expired.
+     * 
+     * @param token the JWT token
+     * @return true if expired, false otherwise
+     */
+    private boolean isTokenExpired(String token) {
+<span class="nc" id="L111">        return extractExpiration(token).before(new Date());</span>
+    }
+    
+    /**
+     * Extract expiration date from token.
+     * 
+     * @param token the JWT token
+     * @return the expiration date
+     */
+    private Date extractExpiration(String token) {
+<span class="nc" id="L121">        return extractClaim(token, Claims::getExpiration);</span>
+    }
+    
+    /**
+     * Extract all claims from token.
+     * 
+     * @param token the JWT token
+     * @return all claims
+     */
+    private Claims extractAllClaims(String token) {
+<span class="nc" id="L131">        return Jwts.parser()</span>
+<span class="nc" id="L132">                .setSigningKey(getSignInKey())</span>
+<span class="nc" id="L133">                .parseClaimsJws(token)</span>
+<span class="nc" id="L134">                .getBody();</span>
+    }
+    
+    /**
+     * Get signing key for JWT.
+     * 
+     * @return the signing key
+     */
+    private SecretKey getSignInKey() {
+<span class="nc" id="L143">        byte[] keyBytes = Decoders.BASE64.decode(secretKey);</span>
+<span class="nc" id="L144">        return Keys.hmacShaKeyFor(keyBytes);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

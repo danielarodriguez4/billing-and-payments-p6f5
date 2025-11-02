@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceShipment.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.model</a> &gt; <span class="el_source">InvoiceShipment.java</span></div><h1>InvoiceShipment.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.model;
+
+import com.fabrica.p6f5.springapp.shipment.model.Shipment;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.time.LocalDateTime;
+
+/**
+ * InvoiceShipment entity following Single Responsibility Principle.
+ * Represents the many-to-many relationship between invoices and shipments.
+ */
+@Entity
+@Table(name = &quot;invoice_shipments&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class InvoiceShipment {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;invoice_shipment_id&quot;)
+    private Long id;
+    
+    @NotNull(message = &quot;Invoice is required&quot;)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;invoice_id&quot;, nullable = false)
+    private Invoice invoice;
+    
+    @NotNull(message = &quot;Shipment is required&quot;)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;shipment_id&quot;, nullable = false)
+    private Shipment shipment;
+    
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L43">        createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L44">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

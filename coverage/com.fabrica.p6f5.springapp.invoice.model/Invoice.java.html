@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Invoice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.model</a> &gt; <span class="el_source">Invoice.java</span></div><h1>Invoice.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Invoice entity following Single Responsibility Principle.
+ * Represents a business invoice with fiscal information.
+ */
+@Entity
+@Table(name = &quot;invoices&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Invoice {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;invoice_id&quot;)
+    private Long id;
+    
+    @Column(name = &quot;fiscal_folio&quot;, unique = true, length = 100)
+    private String fiscalFolio;
+    
+    @NotBlank(message = &quot;Invoice number is required&quot;)
+    @Column(name = &quot;invoice_number&quot;, unique = true, nullable = false, length = 100)
+    private String invoiceNumber;
+    
+    @NotBlank(message = &quot;Client name is required&quot;)
+    @Column(name = &quot;client_name&quot;, nullable = false)
+    private String clientName;
+    
+    @NotNull(message = &quot;Invoice date is required&quot;)
+    @Column(name = &quot;invoice_date&quot;, nullable = false)
+    private LocalDate invoiceDate;
+    
+    @NotNull(message = &quot;Due date is required&quot;)
+    @Column(name = &quot;due_date&quot;, nullable = false)
+    private LocalDate dueDate;
+    
+    @NotNull(message = &quot;Subtotal is required&quot;)
+    @PositiveOrZero(message = &quot;Subtotal must be positive or zero&quot;)
+    @Column(name = &quot;subtotal&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal subtotal;
+    
+    @PositiveOrZero(message = &quot;Tax amount must be positive or zero&quot;)
+    @Column(name = &quot;tax_amount&quot;, precision = 10, scale = 2)
+    private BigDecimal taxAmount = BigDecimal.ZERO;
+    
+    @NotNull(message = &quot;Total amount is required&quot;)
+    @PositiveOrZero(message = &quot;Total amount must be positive or zero&quot;)
+    @Column(name = &quot;total_amount&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+    
+    @Column(name = &quot;currency&quot;, length = 10)
+    private String currency = &quot;USD&quot;;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;invoice_status&quot;, nullable = false, length = 50)
+    private InvoiceStatus status = InvoiceStatus.DRAFT;
+    
+    @Column(name = &quot;pdf_url&quot;, columnDefinition = &quot;TEXT&quot;)
+    private String pdfUrl;
+    
+    @NotNull(message = &quot;Created by is required&quot;)
+    @Column(name = &quot;created_by&quot;, nullable = false)
+    private Long createdBy;
+    
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @Column(name = &quot;updated_at&quot;, nullable = false)
+    private LocalDateTime updatedAt;
+    
+    @Version
+    @Column(name = &quot;version&quot;)
+    private Integer version = 1;
+    
+    @OneToMany(mappedBy = &quot;invoice&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;InvoiceItem&gt; items = new ArrayList&lt;&gt;();
+    
+    @OneToMany(mappedBy = &quot;invoice&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List&lt;InvoiceShipment&gt; shipments = new ArrayList&lt;&gt;();
+    
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L98">        createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L99">        updatedAt = LocalDateTime.now();</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (invoiceDate == null) {</span>
+<span class="nc" id="L101">            invoiceDate = LocalDate.now();</span>
+        }
+<span class="nc" id="L103">    }</span>
+    
+    @PreUpdate
+    protected void onUpdate() {
+<span class="nc" id="L107">        updatedAt = LocalDateTime.now();</span>
+<span class="nc" id="L108">    }</span>
+    
+    /**
+     * Invoice status enum
+     */
+<span class="fc" id="L113">    public enum InvoiceStatus {</span>
+<span class="fc" id="L114">        DRAFT,</span>
+<span class="fc" id="L115">        ISSUED,</span>
+<span class="fc" id="L116">        PAID,</span>
+<span class="fc" id="L117">        CANCELLED</span>
+    }
+    
+    /**
+     * Check if invoice can be edited
+     */
+    public boolean canBeEdited() {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        return status == InvoiceStatus.DRAFT;</span>
+    }
+    
+    /**
+     * Check if invoice can be issued
+     */
+    public boolean canBeIssued() {
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        return status == InvoiceStatus.DRAFT &amp;&amp; </span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">               subtotal != null &amp;&amp; subtotal.compareTo(BigDecimal.ZERO) &gt; 0 &amp;&amp;</span>
+<span class="nc bnc" id="L133" title="All 4 branches missed.">               items != null &amp;&amp; !items.isEmpty() &amp;&amp;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">               clientName != null &amp;&amp; !clientName.trim().isEmpty();</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

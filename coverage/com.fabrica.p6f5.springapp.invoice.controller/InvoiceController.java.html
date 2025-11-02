@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.controller</a> &gt; <span class="el_source">InvoiceController.java</span></div><h1>InvoiceController.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.controller;
+
+import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
+import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
+import com.fabrica.p6f5.springapp.invoice.dto.UpdateInvoiceRequest;
+import com.fabrica.p6f5.springapp.invoice.model.Invoice;
+import com.fabrica.p6f5.springapp.invoice.service.InvoiceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * Invoice Controller following Single Responsibility Principle.
+ * Handles all invoice-related HTTP requests.
+ */
+@RestController
+@RequestMapping(&quot;/api/v1/invoices&quot;)
+@Tag(name = &quot;Invoice API&quot;, description = &quot;API for managing invoices&quot;)
+<span class="fc" id="L31">public class InvoiceController {</span>
+    
+<span class="fc" id="L33">    private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);</span>
+    
+    @Autowired
+    private InvoiceService invoiceService;
+    
+    @Autowired
+    private com.fabrica.p6f5.springapp.pdf.service.PdfService pdfService;
+    
+    /**
+     * Create a draft invoice
+     */
+    @PostMapping
+    @Operation(summary = &quot;Create a draft invoice&quot;, description = &quot;Creates a new invoice in DRAFT status&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; createDraftInvoice(
+            @Valid @RequestBody CreateInvoiceRequest request,
+            @AuthenticationPrincipal User user) {
+<span class="nc" id="L49">        logger.info(&quot;Creating draft invoice by user: {}&quot;, user.getUsername());</span>
+<span class="nc" id="L50">        InvoiceResponse response = invoiceService.createDraftInvoice(request, user.getId());</span>
+<span class="nc" id="L51">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Draft invoice created successfully&quot;,
+            response
+        );
+<span class="nc" id="L56">        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);</span>
+    }
+    
+    /**
+     * Update a draft invoice
+     */
+    @PutMapping(&quot;/{invoiceId}&quot;)
+    @Operation(summary = &quot;Update a draft invoice&quot;, description = &quot;Updates an existing invoice in DRAFT status with optimistic concurrency control&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; updateDraftInvoice(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId,
+            @Valid @RequestBody UpdateInvoiceRequest request,
+            @AuthenticationPrincipal User user) {
+<span class="nc" id="L68">        logger.info(&quot;Updating draft invoice id: {} by user: {}&quot;, invoiceId, user.getUsername());</span>
+<span class="nc" id="L69">        InvoiceResponse response = invoiceService.updateDraftInvoice(invoiceId, request, user.getId());</span>
+<span class="nc" id="L70">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Draft invoice updated successfully&quot;,
+            response
+        );
+<span class="nc" id="L75">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Issue an invoice
+     */
+    @PostMapping(&quot;/{invoiceId}/issue&quot;)
+    @Operation(summary = &quot;Issue an invoice&quot;, description = &quot;Transitions an invoice from DRAFT to ISSUED status&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; issueInvoice(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId,
+            @AuthenticationPrincipal User user) {
+<span class="nc" id="L86">        logger.info(&quot;Issuing invoice id: {} by user: {}&quot;, invoiceId, user.getUsername());</span>
+<span class="nc" id="L87">        InvoiceResponse response = invoiceService.issueInvoice(invoiceId, user.getId());</span>
+<span class="nc" id="L88">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoice issued successfully&quot;,
+            response
+        );
+<span class="nc" id="L93">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get invoice by ID
+     */
+    @GetMapping(&quot;/{invoiceId}&quot;)
+    @Operation(summary = &quot;Get invoice by ID&quot;, description = &quot;Retrieves an invoice by its ID&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; getInvoiceById(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId) {
+<span class="nc" id="L103">        logger.info(&quot;Getting invoice id: {}&quot;, invoiceId);</span>
+<span class="nc" id="L104">        InvoiceResponse response = invoiceService.getInvoiceById(invoiceId);</span>
+<span class="nc" id="L105">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoice retrieved successfully&quot;,
+            response
+        );
+<span class="nc" id="L110">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get all invoices
+     */
+    @GetMapping
+    @Operation(summary = &quot;Get all invoices&quot;, description = &quot;Retrieves all invoices&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt;&gt; getAllInvoices() {
+<span class="nc" id="L119">        logger.info(&quot;Getting all invoices&quot;);</span>
+<span class="nc" id="L120">        List&lt;InvoiceResponse&gt; response = invoiceService.getAllInvoices();</span>
+<span class="nc" id="L121">        ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoices retrieved successfully&quot;,
+            response
+        );
+<span class="nc" id="L126">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get invoices by status
+     */
+    @GetMapping(&quot;/status/{status}&quot;)
+    @Operation(summary = &quot;Get invoices by status&quot;, description = &quot;Retrieves invoices filtered by status&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt;&gt; getInvoicesByStatus(
+            @Parameter(description = &quot;Invoice status&quot;) @PathVariable String status) {
+<span class="nc" id="L136">        logger.info(&quot;Getting invoices with status: {}&quot;, status);</span>
+<span class="nc" id="L137">        Invoice.InvoiceStatus invoiceStatus = Invoice.InvoiceStatus.valueOf(status.toUpperCase());</span>
+<span class="nc" id="L138">        List&lt;InvoiceResponse&gt; response = invoiceService.getInvoicesByStatus(invoiceStatus);</span>
+<span class="nc" id="L139">        ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoices retrieved successfully&quot;,
+            response
+        );
+<span class="nc" id="L144">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Generate PDF for an issued invoice
+     */
+    @PostMapping(&quot;/{invoiceId}/pdf&quot;)
+    @Operation(summary = &quot;Generate PDF&quot;, description = &quot;Generates a PDF for an issued invoice&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;String&gt;&gt; generateInvoicePDF(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId,
+            @AuthenticationPrincipal User user) {
+<span class="nc" id="L155">        logger.info(&quot;Generating PDF for invoice id: {} by user: {}&quot;, invoiceId, user.getUsername());</span>
+<span class="nc" id="L156">        String pdfUrl = pdfService.generateInvoicePDF(invoiceId, user.getId());</span>
+<span class="nc" id="L157">        ApiResponse&lt;String&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;PDF generated successfully&quot;,
+            pdfUrl
+        );
+<span class="nc" id="L162">        return ResponseEntity.ok(apiResponse);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuditService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.audit.service</a> &gt; <span class="el_source">AuditService.java</span></div><h1>AuditService.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.audit.service;
+
+import com.fabrica.p6f5.springapp.audit.model.AuditLog;
+import com.fabrica.p6f5.springapp.audit.model.InvoiceHistory;
+import com.fabrica.p6f5.springapp.audit.repository.AuditLogRepository;
+import com.fabrica.p6f5.springapp.audit.repository.InvoiceHistoryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Audit Service following Single Responsibility Principle.
+ * Handles all audit logging and history tracking.
+ */
+@Service
+<span class="fc" id="L22">public class AuditService {</span>
+    
+<span class="fc" id="L24">    private static final Logger logger = LoggerFactory.getLogger(AuditService.class);</span>
+    
+    @Autowired
+    private AuditLogRepository auditLogRepository;
+    
+    @Autowired
+    private InvoiceHistoryRepository invoiceHistoryRepository;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+    
+    /**
+     * Log an audit event
+     */
+    @Transactional
+    public AuditLog logEvent(String entityType, Long entityId, AuditLog.AuditAction action, 
+                            Long changedBy, Object oldData, Object newData, String changeSummary) {
+        try {
+<span class="nc" id="L42">            AuditLog auditLog = new AuditLog();</span>
+<span class="nc" id="L43">            auditLog.setEntityType(entityType);</span>
+<span class="nc" id="L44">            auditLog.setEntityId(entityId);</span>
+<span class="nc" id="L45">            auditLog.setAction(action);</span>
+<span class="nc" id="L46">            auditLog.setChangedBy(changedBy);</span>
+<span class="nc" id="L47">            auditLog.setChangeSummary(changeSummary);</span>
+            
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            if (oldData != null) {</span>
+<span class="nc" id="L50">                auditLog.setOldData(objectMapper.writeValueAsString(oldData));</span>
+            }
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            if (newData != null) {</span>
+<span class="nc" id="L53">                auditLog.setNewData(objectMapper.writeValueAsString(newData));</span>
+            }
+            
+<span class="nc" id="L56">            return auditLogRepository.save(auditLog);</span>
+<span class="nc" id="L57">        } catch (Exception e) {</span>
+<span class="nc" id="L58">            logger.error(&quot;Error logging audit event: {}&quot;, e.getMessage(), e);</span>
+<span class="nc" id="L59">            throw new RuntimeException(&quot;Failed to log audit event&quot;, e);</span>
+        }
+    }
+    
+    /**
+     * Save invoice history version
+     */
+    @Transactional
+    public InvoiceHistory saveInvoiceHistory(Long invoiceId, Integer version, String fiscalFolio,
+                                             String invoiceNumber, Object invoiceData, Long createdBy) {
+        try {
+<span class="nc" id="L70">            InvoiceHistory history = new InvoiceHistory();</span>
+<span class="nc" id="L71">            history.setInvoiceId(invoiceId);</span>
+<span class="nc" id="L72">            history.setVersion(version);</span>
+<span class="nc" id="L73">            history.setFiscalFolio(fiscalFolio);</span>
+<span class="nc" id="L74">            history.setInvoiceNumber(invoiceNumber);</span>
+<span class="nc" id="L75">            history.setInvoiceData(objectMapper.writeValueAsString(invoiceData));</span>
+<span class="nc" id="L76">            history.setCreatedBy(createdBy);</span>
+            
+<span class="nc" id="L78">            return invoiceHistoryRepository.save(history);</span>
+<span class="nc" id="L79">        } catch (Exception e) {</span>
+<span class="nc" id="L80">            logger.error(&quot;Error saving invoice history: {}&quot;, e.getMessage(), e);</span>
+<span class="nc" id="L81">            throw new RuntimeException(&quot;Failed to save invoice history&quot;, e);</span>
+        }
+    }
+    
+    /**
+     * Get audit logs for an entity
+     */
+    public List&lt;AuditLog&gt; getAuditLogs(String entityType, Long entityId) {
+<span class="nc" id="L89">        return auditLogRepository.findByEntityTypeAndEntityIdOrderByCreatedAtDesc(entityType, entityId);</span>
+    }
+    
+    /**
+     * Get invoice history
+     */
+    public List&lt;InvoiceHistory&gt; getInvoiceHistory(Long invoiceId) {
+<span class="nc" id="L96">        return invoiceHistoryRepository.findByInvoiceIdOrderByVersionDesc(invoiceId);</span>
+    }
+    
+    /**
+     * Get specific version of invoice history
+     */
+    public Optional&lt;InvoiceHistory&gt; getInvoiceHistoryVersion(Long invoiceId, Integer version) {
+<span class="nc" id="L103">        return invoiceHistoryRepository.findByInvoiceIdAndVersion(invoiceId, version);</span>
+    }
+    
+    /**
+     * Get latest version of invoice
+     */
+    public Optional&lt;InvoiceHistory&gt; getLatestInvoiceVersion(Long invoiceId) {
+<span class="nc" id="L110">        return invoiceHistoryRepository.findFirstByInvoiceIdOrderByVersionDesc(invoiceId);</span>
+    }
+    
+    /**
+     * Get version count for an invoice
+     */
+    public long getInvoiceVersionCount(Long invoiceId) {
+<span class="nc" id="L117">        return invoiceHistoryRepository.countByInvoiceId(invoiceId);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

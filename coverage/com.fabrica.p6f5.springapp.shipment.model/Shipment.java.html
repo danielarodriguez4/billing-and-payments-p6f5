@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Shipment.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.shipment.model</a> &gt; <span class="el_source">Shipment.java</span></div><h1>Shipment.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.shipment.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+/**
+ * Shipment entity following Single Responsibility Principle.
+ * Represents a shipment that can be linked to invoices.
+ */
+@Entity
+@Table(name = &quot;shipments&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Shipment {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;shipment_id&quot;)
+    private Long id;
+    
+    @NotBlank(message = &quot;Client name is required&quot;)
+    @Column(name = &quot;client_name&quot;, nullable = false)
+    private String clientName;
+    
+    @NotBlank(message = &quot;Origin address is required&quot;)
+    @Column(name = &quot;origin_address&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+    private String originAddress;
+    
+    @NotBlank(message = &quot;Destination address is required&quot;)
+    @Column(name = &quot;destination_address&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+    private String destinationAddress;
+    
+    @NotNull(message = &quot;Total weight is required&quot;)
+    @Positive(message = &quot;Total weight must be positive&quot;)
+    @Column(name = &quot;total_weight&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalWeight;
+    
+    @NotNull(message = &quot;Total volume is required&quot;)
+    @Positive(message = &quot;Total volume must be positive&quot;)
+    @Column(name = &quot;total_volume&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalVolume;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;shipment_status&quot;, nullable = false, length = 50)
+    private ShipmentStatus status = ShipmentStatus.PENDING;
+    
+    @Column(name = &quot;tracking_number&quot;, unique = true, length = 100)
+    private String trackingNumber;
+    
+    @Column(name = &quot;created_by&quot;)
+    private Long createdBy;
+    
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @Column(name = &quot;updated_at&quot;, nullable = false)
+    private LocalDateTime updatedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L70">        createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L71">        updatedAt = LocalDateTime.now();</span>
+<span class="nc" id="L72">    }</span>
+    
+    @PreUpdate
+    protected void onUpdate() {
+<span class="nc" id="L76">        updatedAt = LocalDateTime.now();</span>
+<span class="nc" id="L77">    }</span>
+    
+    /**
+     * Shipment status enum
+     */
+<span class="fc" id="L82">    public enum ShipmentStatus {</span>
+<span class="fc" id="L83">        PENDING,</span>
+<span class="fc" id="L84">        IN_TRANSIT,</span>
+<span class="fc" id="L85">        DELIVERED,</span>
+<span class="fc" id="L86">        CANCELLED</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

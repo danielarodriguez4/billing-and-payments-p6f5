@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.dto</a> &gt; <span class="el_source">InvoiceResponse.java</span></div><h1>InvoiceResponse.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.dto;
+
+import com.fabrica.p6f5.springapp.invoice.model.Invoice;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * DTO for invoice responses.
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class InvoiceResponse {
+    
+    private Long id;
+    private String fiscalFolio;
+    private String invoiceNumber;
+    private String clientName;
+    private LocalDate invoiceDate;
+    private LocalDate dueDate;
+    private BigDecimal subtotal;
+    private BigDecimal taxAmount;
+    private BigDecimal totalAmount;
+    private String currency;
+    private String status;
+    private String pdfUrl;
+    private Long createdBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Integer version;
+    private List&lt;InvoiceItemResponse&gt; items;
+    private List&lt;Long&gt; shipmentIds;
+    
+    /**
+     * Convert Invoice entity to InvoiceResponse DTO
+     */
+    public static InvoiceResponse fromEntity(Invoice invoice) {
+<span class="nc" id="L45">        InvoiceResponse response = new InvoiceResponse();</span>
+<span class="nc" id="L46">        response.setId(invoice.getId());</span>
+<span class="nc" id="L47">        response.setFiscalFolio(invoice.getFiscalFolio());</span>
+<span class="nc" id="L48">        response.setInvoiceNumber(invoice.getInvoiceNumber());</span>
+<span class="nc" id="L49">        response.setClientName(invoice.getClientName());</span>
+<span class="nc" id="L50">        response.setInvoiceDate(invoice.getInvoiceDate());</span>
+<span class="nc" id="L51">        response.setDueDate(invoice.getDueDate());</span>
+<span class="nc" id="L52">        response.setSubtotal(invoice.getSubtotal());</span>
+<span class="nc" id="L53">        response.setTaxAmount(invoice.getTaxAmount());</span>
+<span class="nc" id="L54">        response.setTotalAmount(invoice.getTotalAmount());</span>
+<span class="nc" id="L55">        response.setCurrency(invoice.getCurrency());</span>
+<span class="nc" id="L56">        response.setStatus(invoice.getStatus().toString());</span>
+<span class="nc" id="L57">        response.setPdfUrl(invoice.getPdfUrl());</span>
+<span class="nc" id="L58">        response.setCreatedBy(invoice.getCreatedBy());</span>
+<span class="nc" id="L59">        response.setCreatedAt(invoice.getCreatedAt());</span>
+<span class="nc" id="L60">        response.setUpdatedAt(invoice.getUpdatedAt());</span>
+<span class="nc" id="L61">        response.setVersion(invoice.getVersion());</span>
+        
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (invoice.getItems() != null) {</span>
+<span class="nc" id="L64">            response.setItems(invoice.getItems().stream()</span>
+<span class="nc" id="L65">                .map(InvoiceItemResponse::fromEntity)</span>
+<span class="nc" id="L66">                .collect(Collectors.toList()));</span>
+        }
+        
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (invoice.getShipments() != null) {</span>
+<span class="nc" id="L70">            response.setShipmentIds(invoice.getShipments().stream()</span>
+<span class="nc" id="L71">                .map(is -&gt; is.getShipment().getId())</span>
+<span class="nc" id="L72">                .collect(Collectors.toList()));</span>
+        }
+        
+<span class="nc" id="L75">        return response;</span>
+    }
+    
+    /**
+     * Nested DTO for invoice items
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InvoiceItemResponse {
+        
+        private Long id;
+        private Long shipmentId;
+        private String description;
+        private Integer quantity;
+        private BigDecimal unitPrice;
+        private BigDecimal totalPrice;
+        
+        /**
+         * Convert InvoiceItem entity to InvoiceItemResponse DTO
+         */
+        public static InvoiceItemResponse fromEntity(com.fabrica.p6f5.springapp.invoice.model.InvoiceItem item) {
+<span class="nc" id="L97">            InvoiceItemResponse response = new InvoiceItemResponse();</span>
+<span class="nc" id="L98">            response.setId(item.getId());</span>
+<span class="nc" id="L99">            response.setDescription(item.getDescription());</span>
+<span class="nc" id="L100">            response.setQuantity(item.getQuantity());</span>
+<span class="nc" id="L101">            response.setUnitPrice(item.getUnitPrice());</span>
+<span class="nc" id="L102">            response.setTotalPrice(item.getTotalPrice());</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (item.getShipment() != null) {</span>
+<span class="nc" id="L104">                response.setShipmentId(item.getShipment().getId());</span>
+            }
+<span class="nc" id="L106">            return response;</span>
+        }
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

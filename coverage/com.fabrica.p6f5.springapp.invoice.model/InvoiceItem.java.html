@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceItem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.model</a> &gt; <span class="el_source">InvoiceItem.java</span></div><h1>InvoiceItem.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+/**
+ * InvoiceItem entity following Single Responsibility Principle.
+ * Represents a line item in an invoice.
+ */
+@Entity
+@Table(name = &quot;invoice_items&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class InvoiceItem {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;item_id&quot;)
+    private Long id;
+    
+    @NotNull(message = &quot;Invoice is required&quot;)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;invoice_id&quot;, nullable = false)
+    @JsonIgnore
+    private Invoice invoice;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;shipment_id&quot;)
+    private com.fabrica.p6f5.springapp.shipment.model.Shipment shipment;
+    
+    @NotBlank(message = &quot;Description is required&quot;)
+    @Column(name = &quot;description&quot;, nullable = false, columnDefinition = &quot;TEXT&quot;)
+    private String description;
+    
+    @NotNull(message = &quot;Quantity is required&quot;)
+    @Min(value = 1, message = &quot;Quantity must be at least 1&quot;)
+    @Column(name = &quot;quantity&quot;, nullable = false)
+    private Integer quantity = 1;
+    
+    @NotNull(message = &quot;Unit price is required&quot;)
+    @Positive(message = &quot;Unit price must be positive&quot;)
+    @Column(name = &quot;unit_price&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitPrice;
+    
+    @NotNull(message = &quot;Total price is required&quot;)
+    @PositiveOrZero(message = &quot;Total price must be positive or zero&quot;)
+    @Column(name = &quot;total_price&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
+    
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L67">        createdAt = LocalDateTime.now();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (totalPrice == null) {</span>
+<span class="nc" id="L69">            totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));</span>
+        }
+<span class="nc" id="L71">    }</span>
+    
+    /**
+     * Calculate total price based on quantity and unit price
+     */
+    public void calculateTotal() {
+<span class="nc bnc" id="L77" title="All 4 branches missed.">        if (unitPrice != null &amp;&amp; quantity != null) {</span>
+<span class="nc" id="L78">            totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));</span>
+        }
+<span class="nc" id="L80">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

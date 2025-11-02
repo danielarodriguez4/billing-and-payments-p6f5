@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.config;
+
+import com.fabrica.p6f5.springapp.security.JwtAuthenticationEntryPoint;
+import com.fabrica.p6f5.springapp.security.JwtAuthenticationFilter;
+import com.fabrica.p6f5.springapp.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+/**
+ * Security Configuration following Open/Closed Principle.
+ * This configuration is open for extension but closed for modification.
+ */
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+<span class="fc" id="L29">public class SecurityConfig {</span>
+    
+    @Autowired
+    @Lazy
+    private UserService userService;
+    
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    
+    @Autowired
+    @Lazy
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    /**
+     * Password encoder bean.
+     * 
+     * @return BCryptPasswordEncoder instance
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+<span class="fc" id="L49">        return new BCryptPasswordEncoder();</span>
+    }
+    
+    /**
+     * Authentication provider bean.
+     * 
+     * @return DaoAuthenticationProvider instance
+     */
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+<span class="fc" id="L59">        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();</span>
+<span class="fc" id="L60">        authProvider.setUserDetailsService(userService);</span>
+<span class="fc" id="L61">        authProvider.setPasswordEncoder(passwordEncoder());</span>
+<span class="fc" id="L62">        return authProvider;</span>
+    }
+    
+    /**
+     * Authentication manager bean.
+     * 
+     * @param authConfig authentication configuration
+     * @return AuthenticationManager instance
+     * @throws Exception if configuration fails
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+<span class="fc" id="L74">        return authConfig.getAuthenticationManager();</span>
+    }
+    
+    /**
+     * Security filter chain configuration.
+     * 
+     * @param http HttpSecurity instance
+     * @return SecurityFilterChain instance
+     * @throws Exception if configuration fails
+     */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+<span class="fc" id="L86">        http.cors(cors -&gt; cors.disable())</span>
+<span class="fc" id="L87">            .csrf(csrf -&gt; csrf.disable())</span>
+<span class="fc" id="L88">            .exceptionHandling(exception -&gt; exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))</span>
+<span class="fc" id="L89">            .sessionManagement(session -&gt; session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
+<span class="fc" id="L90">            .authorizeHttpRequests(auth -&gt; </span>
+<span class="fc" id="L91">                auth.requestMatchers(&quot;/api/auth/**&quot;).permitAll()</span>
+<span class="fc" id="L92">                    .requestMatchers(&quot;/api/public/**&quot;).permitAll()</span>
+<span class="fc" id="L93">                    .requestMatchers(&quot;/actuator/**&quot;).permitAll()</span>
+<span class="fc" id="L94">                    .requestMatchers(&quot;/swagger-ui/**&quot;, &quot;/v3/api-docs/**&quot;, &quot;/api-docs/**&quot;).permitAll()</span>
+<span class="fc" id="L95">                    .requestMatchers(&quot;/graphiql/**&quot;, &quot;/graphql/**&quot;).permitAll()</span>
+<span class="fc" id="L96">                    .anyRequest().authenticated()</span>
+            );
+        
+<span class="fc" id="L99">        http.authenticationProvider(authenticationProvider());</span>
+<span class="fc" id="L100">        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);</span>
+        
+<span class="fc" id="L102">        return http.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

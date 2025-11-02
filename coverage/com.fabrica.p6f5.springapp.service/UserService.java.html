@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.service;
+
+import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * User Service following Single Responsibility Principle.
+ * This service is responsible only for user-related operations.
+ */
+@Service
+public class UserService implements UserDetailsService {
+    
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    @Autowired
+<span class="fc" id="L26">    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L27">        this.userRepository = userRepository;</span>
+<span class="fc" id="L28">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L29">    }</span>
+    
+    /**
+     * Load user by username for Spring Security.
+     * 
+     * @param username the username
+     * @return UserDetails
+     * @throws UsernameNotFoundException if user not found
+     */
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+<span class="nc" id="L40">        return userRepository.findByUsername(username)</span>
+<span class="nc" id="L41">                .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;User not found: &quot; + username));</span>
+    }
+    
+    /**
+     * Find user by username or email.
+     * 
+     * @param usernameOrEmail the username or email
+     * @return Optional containing the user if found
+     */
+    public Optional&lt;User&gt; findByUsernameOrEmail(String usernameOrEmail) {
+<span class="nc" id="L51">        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);</span>
+    }
+    
+    /**
+     * Save a new user.
+     * 
+     * @param user the user to save
+     * @return the saved user
+     */
+    public User save(User user) {
+        // Encode password before saving
+<span class="nc" id="L62">        user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+<span class="nc" id="L63">        return userRepository.save(user);</span>
+    }
+    
+    /**
+     * Check if username exists.
+     * 
+     * @param username the username to check
+     * @return true if exists, false otherwise
+     */
+    public boolean existsByUsername(String username) {
+<span class="nc" id="L73">        return userRepository.existsByUsername(username);</span>
+    }
+    
+    /**
+     * Check if email exists.
+     * 
+     * @param email the email to check
+     * @return true if exists, false otherwise
+     */
+    public boolean existsByEmail(String email) {
+<span class="nc" id="L83">        return userRepository.existsByEmail(email);</span>
+    }
+    
+    /**
+     * Find user by ID.
+     * 
+     * @param id the user ID
+     * @return Optional containing the user if found
+     */
+    public Optional&lt;User&gt; findById(Long id) {
+<span class="nc" id="L93">        return userRepository.findById(id);</span>
+    }
+    
+    /**
+     * Find all users.
+     * 
+     * @return List of all users
+     */
+    public List&lt;User&gt; findAll() {
+<span class="nc" id="L102">        return userRepository.findAll();</span>
+    }
+    
+    /**
+     * Delete user by ID.
+     * 
+     * @param id the user ID
+     */
+    public void deleteById(Long id) {
+<span class="nc" id="L111">        userRepository.deleteById(id);</span>
+<span class="nc" id="L112">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

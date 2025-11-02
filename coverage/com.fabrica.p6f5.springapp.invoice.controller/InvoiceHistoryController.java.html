@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceHistoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">billing-and-payments-p6f5</a> &gt; <a href="index.source.html" class="el_package">com.fabrica.p6f5.springapp.invoice.controller</a> &gt; <span class="el_source">InvoiceHistoryController.java</span></div><h1>InvoiceHistoryController.java</h1><pre class="source lang-java linenums">package com.fabrica.p6f5.springapp.invoice.controller;
+
+import com.fabrica.p6f5.springapp.audit.model.InvoiceHistory;
+import com.fabrica.p6f5.springapp.audit.service.AuditService;
+import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.invoice.dto.InvoiceHistoryResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * Invoice History Controller following Single Responsibility Principle.
+ * Handles all invoice history-related HTTP requests.
+ */
+@RestController
+@RequestMapping(&quot;/api/v1/invoices&quot;)
+@Tag(name = &quot;Invoice History API&quot;, description = &quot;API for managing invoice history&quot;)
+<span class="fc" id="L25">public class InvoiceHistoryController {</span>
+    
+    @Autowired
+    private AuditService auditService;
+    
+    /**
+     * Get invoice history
+     */
+    @GetMapping(&quot;/{invoiceId}/history&quot;)
+    @Operation(summary = &quot;Get invoice history&quot;, description = &quot;Retrieves all versions of an invoice&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;List&lt;InvoiceHistoryResponse&gt;&gt;&gt; getInvoiceHistory(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId) {
+<span class="nc" id="L37">        List&lt;InvoiceHistory&gt; history = auditService.getInvoiceHistory(invoiceId);</span>
+<span class="nc" id="L38">        List&lt;InvoiceHistoryResponse&gt; response = history.stream()</span>
+<span class="nc" id="L39">            .map(this::convertToResponse)</span>
+<span class="nc" id="L40">            .collect(Collectors.toList());</span>
+<span class="nc" id="L41">        ApiResponse&lt;List&lt;InvoiceHistoryResponse&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoice history retrieved successfully&quot;,
+            response
+        );
+<span class="nc" id="L46">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Get specific version of invoice
+     */
+    @GetMapping(&quot;/{invoiceId}/history/{version}&quot;)
+    @Operation(summary = &quot;Get invoice version&quot;, description = &quot;Retrieves a specific version of an invoice&quot;)
+    public ResponseEntity&lt;ApiResponse&lt;InvoiceHistoryResponse&gt;&gt; getInvoiceVersion(
+            @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId,
+            @Parameter(description = &quot;Version number&quot;) @PathVariable Integer version) {
+<span class="nc" id="L57">        Optional&lt;InvoiceHistory&gt; history = auditService.getInvoiceHistoryVersion(invoiceId, version);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if (!history.isPresent()) {</span>
+<span class="nc" id="L59">            ApiResponse&lt;InvoiceHistoryResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+                false,
+                &quot;Version not found&quot;,
+                null
+            );
+<span class="nc" id="L64">            return ResponseEntity.ok(apiResponse);</span>
+        }
+<span class="nc" id="L66">        InvoiceHistoryResponse response = convertToResponse(history.get());</span>
+<span class="nc" id="L67">        ApiResponse&lt;InvoiceHistoryResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+            true,
+            &quot;Invoice version retrieved successfully&quot;,
+            response
+        );
+<span class="nc" id="L72">        return ResponseEntity.ok(apiResponse);</span>
+    }
+    
+    /**
+     * Convert InvoiceHistory to response DTO
+     */
+    private InvoiceHistoryResponse convertToResponse(InvoiceHistory history) {
+<span class="nc" id="L79">        InvoiceHistoryResponse response = new InvoiceHistoryResponse();</span>
+<span class="nc" id="L80">        response.setId(history.getId());</span>
+<span class="nc" id="L81">        response.setInvoiceId(history.getInvoiceId());</span>
+<span class="nc" id="L82">        response.setVersion(history.getVersion());</span>
+<span class="nc" id="L83">        response.setFiscalFolio(history.getFiscalFolio());</span>
+<span class="nc" id="L84">        response.setInvoiceNumber(history.getInvoiceNumber());</span>
+<span class="nc" id="L85">        response.setInvoiceData(history.getInvoiceData());</span>
+<span class="nc" id="L86">        response.setCreatedBy(history.getCreatedBy());</span>
+<span class="nc" id="L87">        response.setCreatedAt(history.getCreatedAt());</span>
+<span class="nc" id="L88">        response.setIsReverted(history.getIsReverted());</span>
+<span class="nc" id="L89">        return response;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
