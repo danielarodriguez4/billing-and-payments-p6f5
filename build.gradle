@@ -21,52 +21,47 @@ repositories {
 }
 
 dependencies {
+
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-graphql'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.postgresql:postgresql'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-graphql'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-	
+	implementation 'com.itextpdf:itext7-core:8.0.2'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	
-	implementation 'com.itextpdf:itext7-core:8.0.2'
-	
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' // incluye JUnit 5 + AssertJ + Hamcrest
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
+
+	// Mockito explícito (por si tus tests lo usan con @Mock o @InjectMocks)
+	testImplementation 'org.mockito:mockito-core:5.13.0'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.13.0'
+
+	// Asegura compatibilidad con JUnit Platform (para Sonar y Jacoco)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
-	useJUnitPlatform()
-	finalizedBy jacocoTestReport
-}
-
-jacoco {
-	toolVersion = "0.8.11"
-}
-
-jacocoTestReport {
-	dependsOn test
-	reports {
-		xml.required = true
-		xml.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
-		csv.required = true
-		csv.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.csv")
-		html.required = true
-		html.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/html")
+	useJUnitPlatform() // JUnit 5
+	testLogging {
+		events "passed", "skipped", "failed"
 	}
+	finalizedBy jacocoTestReport // genera cobertura después de correr los tests
 }
+
 
 sonar {
 	properties {
