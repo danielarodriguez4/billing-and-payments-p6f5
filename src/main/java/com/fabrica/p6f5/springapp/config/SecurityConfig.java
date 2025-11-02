@@ -91,6 +91,8 @@ public class SecurityConfig {
                 auth.requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
                     .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
+                    .requestMatchers("/graphiql/**", "/graphql/**").permitAll()
                     .anyRequest().authenticated()
             );
         
