@@ -1,22 +1,23 @@
 package com.fabrica.p6f5.springapp.invoice.controller;
 
+import com.fabrica.p6f5.springapp.factory.FakeUserFactory;
 import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
 import com.fabrica.p6f5.springapp.invoice.service.InvoiceService;
 import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 class InvoiceControllerTest {
 
@@ -28,10 +29,12 @@ class InvoiceControllerTest {
 
     private CreateInvoiceRequest request;
     private InvoiceResponse response;
+    private FakeUserFactory fakeUserFactory;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        fakeUserFactory = new FakeUserFactory();
 
         request = new CreateInvoiceRequest();
         request.setClientName("Test Client");
@@ -49,28 +52,48 @@ class InvoiceControllerTest {
 
     @Test
     void testCreateDraftInvoice_Success() {
-        when(invoiceService.createDraftInvoice(any(CreateInvoiceRequest.class), anyLong()))
+        // Arrange
+        var user = fakeUserFactory.createFakeUser();
+        when(invoiceService.createDraftInvoice(ArgumentMatchers.any(CreateInvoiceRequest.class), ArgumentMatchers.anyLong()))
                 .thenReturn(response);
 
-        ResponseEntity<ApiResponse<InvoiceResponse>> result = invoiceController.createDraftInvoice(request, 1L);
+        // Act
+        ResponseEntity<ApiResponse<InvoiceResponse>> result = invoiceController.createDraftInvoice(request, user);
 
-        assertNotNull(result);
-        assertTrue(result.getBody().isSuccess());
+        // Assert
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getBody());
+        Assertions.assertTrue(result.getBody().isSuccess());
         assertEquals("Test Client", result.getBody().getData().getClientName());
-        verify(invoiceService, times(1)).createDraftInvoice(any(), anyLong());
+        Mockito.verify(invoiceService, Mockito.times(1)).createDraftInvoice(ArgumentMatchers.any(), ArgumentMatchers.anyLong());
     }
 
     @Test
     void testGetInvoiceById_Success() {
+        // Arrange
         when(invoiceService.getInvoiceById(1L)).thenReturn(response);
 
+        // Act
         ResponseEntity<ApiResponse<InvoiceResponse>> result = invoiceController.getInvoiceById(1L);
 
-        assertNotNull(result);
+        // Assert
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getBody());
         assertEquals("Test Client", result.getBody().getData().getClientName());
-        verify(invoiceService, times(1)).getInvoiceById(1L);
+        Mockito.verify(invoiceService, Mockito.times(1)).getInvoiceById(1L);
     }
 
     @Test
-    void testGetAllInvoices_Success() {
-        when(invoiceService.getAllInvoices()).thenReturn(Collections.singletonLi
+        // Assert
+    void testGetAllInvoices() {
+
+        // Arrange
+        ResponseEntity<ApiResponse<List<InvoiceResponse>>> result = invoiceController.getAllInvoices();
+
+        // Act
+        assertEquals(200, result.getStatusCode().value());
+        Assertions.assertNotNull(result.getBody());
+        // Assert
+        assertEquals(1, result.getBody().getData().size());
+    }
+}

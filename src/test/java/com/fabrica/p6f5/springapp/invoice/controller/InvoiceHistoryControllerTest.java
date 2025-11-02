@@ -46,13 +46,17 @@ class InvoiceHistoryControllerTest {
 
     @Test
     void testGetInvoiceHistory_Success() {
+        // Arrange
         when(auditService.getInvoiceHistory(100L)).thenReturn(Arrays.asList(mockHistory));
 
+        // Act
         ResponseEntity<ApiResponse<List<InvoiceHistoryResponse>>> response =
                 invoiceHistoryController.getInvoiceHistory(100L);
 
+        // Assert
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
         assertEquals("Invoice history retrieved successfully", response.getBody().getMessage());
         assertEquals(1, response.getBody().getData().size());
@@ -61,12 +65,16 @@ class InvoiceHistoryControllerTest {
 
     @Test
     void testGetInvoiceVersion_Found() {
+        // Arrange
         when(auditService.getInvoiceHistoryVersion(100L, 1)).thenReturn(Optional.of(mockHistory));
 
+        // Act
         ResponseEntity<ApiResponse<InvoiceHistoryResponse>> response =
                 invoiceHistoryController.getInvoiceVersion(100L, 1);
 
+        // Assert
         assertNotNull(response);
+        assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
         assertEquals("Invoice version retrieved successfully", response.getBody().getMessage());
         assertNotNull(response.getBody().getData());
@@ -75,12 +83,16 @@ class InvoiceHistoryControllerTest {
 
     @Test
     void testGetInvoiceVersion_NotFound() {
+        // Arrange
         when(auditService.getInvoiceHistoryVersion(100L, 99)).thenReturn(Optional.empty());
 
+        // Act
         ResponseEntity<ApiResponse<InvoiceHistoryResponse>> response =
                 invoiceHistoryController.getInvoiceVersion(100L, 99);
 
         assertNotNull(response);
+        // Assert
+        assertNotNull(response.getBody());
         assertFalse(response.getBody().isSuccess());
         assertEquals("Version not found", response.getBody().getMessage());
         assertNull(response.getBody().getData());

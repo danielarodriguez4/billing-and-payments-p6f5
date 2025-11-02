@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "users")
+@Builder
+@AllArgsConstructor
 public class User implements UserDetails {
     
     @Id
@@ -153,12 +157,7 @@ public class User implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-    
-    @Override
-    public boolean isEnabled() {
-        return isActive != null ? isActive : true;
-    }
-    
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
