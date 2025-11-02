@@ -47,13 +47,13 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
 }
 
 jacoco {
-	toolVersion = "0.8.11"  // Versión más reciente
+	toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
@@ -61,6 +61,8 @@ jacocoTestReport {
 	reports {
 		xml.required = true
 		xml.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
+		csv.required = true
+		csv.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.csv")
 		html.required = true
 		html.outputLocation = file("${layout.buildDirectory.get()}/reports/jacoco/test/html")
 	}
@@ -72,12 +74,10 @@ sonar {
 		property "sonar.organization", "danielarodriguez4"
 		property "sonar.host.url", "https://sonarcloud.io"
 		property "sonar.java.source", "21"
-		property "sonar.java.target", "21"
 		property "sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml"
-		property "sonar.exclusions", "**/config/**,**/entity/**,**/dto/**"
 	}
 }
 
 tasks.named('sonarqube') {
-	dependsOn jacocoTestReport
+	dependsOn test, jacocoTestReport
 }
