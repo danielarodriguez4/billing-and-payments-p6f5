@@ -1,7 +1,9 @@
 package com.fabrica.p6f5.springapp.invoice.controller;
 
+import com.fabrica.p6f5.springapp.audit.model.InvoiceHistory;
+import com.fabrica.p6f5.springapp.audit.service.AuditService;
+import com.fabrica.p6f5.springapp.dto.ApiResponse;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceHistoryResponse;
-import com.fabrica.p6f5.springapp.invoice.service.InvoiceHistoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -10,8 +12,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,87 +22,68 @@ import static org.mockito.Mockito.*;
 class InvoiceHistoryControllerTest {
 
     @Mock
-    private InvoiceHistoryService invoiceHistoryService;
+    private AuditService auditService;
 
     @InjectMocks
     private InvoiceHistoryController invoiceHistoryController;
 
-    private InvoiceHistoryResponse historyResponse;
+    private InvoiceHistory mockHistory;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        historyResponse = new InvoiceHistoryResponse();
-        historyResponse.setId(1L);
-        historyResponse.setInvoiceId(100L);
-        historyResponse.setAction("CREATE");
-        historyResponse.setTimestamp(LocalDateTime.now());
-        historyResponse.setUserName("admin");
-        historyResponse.setDetails("Factura creada");
+        mockHistory = new InvoiceHistory();
+        mockHistory.setId(1L);
+        mockHistory.setInvoiceId(100L);
+        mockHistory.setVersion(1);
+        mockHistory.setFiscalFolio("FOLIO-001");
+        mockHistory.setInvoiceNumber("INV-001");
+        mockHistory.setInvoiceData("{json}");
+        mockHistory.setCreatedBy(10L);
+        mockHistory.setCreatedAt(LocalDateTime.now());
+        mockHistory.setIsReverted(false);
     }
 
     @Test
-    void testGetAllHistories() {
-        when(invoiceHistoryService.getAllHistories()).thenReturn(List.of(historyResponse));
+    void testGetInvoiceHistory_Success() {
+        when(auditService.getInvoiceHistory(100L)).thenReturn(Arrays.asList(mockHistory));
 
-        ResponseEntity<List<InvoiceHistoryResponse>> result = invoiceHistoryController.getAllHistories();
+        ResponseEntity<ApiResponse<List<InvoiceHistoryResponse>>> response =
+                invoiceHistoryController.getInvoiceHistory(100L);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(1, result.getBody().size());
-        assertEquals("CREATE", result.getBody().get(0).getAction());
-        verify(invoiceHistoryService, times(1)).getAllHistories();
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("Invoice history retrieved successfully", response.getBody().getMessage());
+        assertEquals(1, response.getBody().getData().size());
+        verify(auditService, times(1)).getInvoiceHistory(100L);
     }
 
     @Test
-    void testGetAllHistories_EmptyList() {
-        when(invoiceHistoryService.getAllHistories()).thenReturn(Collections.emptyList());
+    void testGetInvoiceVersion_Found() {
+        when(auditService.getInvoiceHistoryVersion(100L, 1)).thenReturn(Optional.of(mockHistory));
 
-        ResponseEntity<List<InvoiceHistoryResponse>> result = invoiceHistoryController.getAllHistories();
+        ResponseEntity<ApiResponse<InvoiceHistoryResponse>> response =
+                invoiceHistoryController.getInvoiceVersion(100L, 1);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertTrue(result.getBody().isEmpty());
+        assertNotNull(response);
+        assertTrue(response.getBody().isSuccess());
+        assertEquals("Invoice version retrieved successfully", response.getBody().getMessage());
+        assertNotNull(response.getBody().getData());
+        verify(auditService, times(1)).getInvoiceHistoryVersion(100L, 1);
     }
 
     @Test
-    void testGetHistoryById_Success() {
-        when(invoiceHistoryService.getHistoryById(1L)).thenReturn(historyResponse);
+    void testGetInvoiceVersion_NotFound() {
+        when(auditService.getInvoiceHistoryVersion(100L, 99)).thenReturn(Optional.empty());
 
-        ResponseEntity<InvoiceHistoryResponse> result = invoiceHistoryController.getHistoryById(1L);
+        ResponseEntity<ApiResponse<InvoiceHistoryResponse>> response =
+                invoiceHistoryController.getInvoiceVersion(100L, 99);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(100L, result.getBody().getInvoiceId());
-        verify(invoiceHistoryService, times(1)).getHistoryById(1L);
-    }
-
-    @Test
-    void testGetHistoryById_NotFound() {
-        when(invoiceHistoryService.getHistoryById(99L)).thenReturn(null);
-
-        ResponseEntity<InvoiceHistoryResponse> result = invoiceHistoryController.getHistoryById(99L);
-
-        assertEquals(404, result.getStatusCodeValue());
-        assertNull(result.getBody());
-    }
-
-    @Test
-    void testGetHistoriesByInvoiceId_Success() {
-        when(invoiceHistoryService.getHistoriesByInvoiceId(100L)).thenReturn(List.of(historyResponse));
-
-        ResponseEntity<List<InvoiceHistoryResponse>> result = invoiceHistoryController.getHistoriesByInvoiceId(100L);
-
-        assertEquals(200, result.getStatusCodeValue());
-        assertEquals(1, result.getBody().size());
-        assertEquals("CREATE", result.getBody().get(0).getAction());
-    }
-
-    @Test
-    void testGetHistoriesByInvoiceId_Empty() {
-        when(invoiceHistoryService.getHistoriesByInvoiceId(100L)).thenReturn(Collections.emptyList());
-
-        ResponseEntity<List<InvoiceHistoryResponse>> result = invoiceHistoryController.getHistoriesByInvoiceId(100L);
-
-        assertEquals(200, result.getStatusCodeValue());
-        assertTrue(result.getBody().isEmpty());
+        assertNotNull(response);
+        assertFalse(response.getBody().isSuccess());
+        assertEquals("Version not found", response.getBody().getMessage());
+        assertNull(response.getBody().getData());
+        verify(auditService, times(1)).getInvoiceHistoryVersion(100L, 99);
     }
 }
