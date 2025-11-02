@@ -17,12 +17,12 @@ public class ApiResponse&lt;T&gt; {
 <span class="nc" id="L17">    }</span>
     
     // Constructor for success response
-<span class="nc" id="L20">    public ApiResponse(boolean success, String message, T data) {</span>
-<span class="nc" id="L21">        this.success = success;</span>
-<span class="nc" id="L22">        this.message = message;</span>
-<span class="nc" id="L23">        this.data = data;</span>
-<span class="nc" id="L24">        this.timestamp = System.currentTimeMillis();</span>
-<span class="nc" id="L25">    }</span>
+<span class="fc" id="L20">    public ApiResponse(boolean success, String message, T data) {</span>
+<span class="fc" id="L21">        this.success = success;</span>
+<span class="fc" id="L22">        this.message = message;</span>
+<span class="fc" id="L23">        this.data = data;</span>
+<span class="fc" id="L24">        this.timestamp = System.currentTimeMillis();</span>
+<span class="fc" id="L25">    }</span>
     
     // Static factory methods for common responses
     public static &lt;T&gt; ApiResponse&lt;T&gt; success(String message, T data) {
@@ -43,7 +43,7 @@ public class ApiResponse&lt;T&gt; {
     
     // Getters and Setters
     public boolean isSuccess() {
-<span class="nc" id="L46">        return success;</span>
+<span class="fc" id="L46">        return success;</span>
     }
     
     public void setSuccess(boolean success) {
@@ -51,7 +51,7 @@ public class ApiResponse&lt;T&gt; {
 <span class="nc" id="L51">    }</span>
     
     public String getMessage() {
-<span class="nc" id="L54">        return message;</span>
+<span class="fc" id="L54">        return message;</span>
     }
     
     public void setMessage(String message) {
@@ -59,7 +59,7 @@ public class ApiResponse&lt;T&gt; {
 <span class="nc" id="L59">    }</span>
     
     public T getData() {
-<span class="nc" id="L62">        return data;</span>
+<span class="fc" id="L62">        return data;</span>
     }
     
     public void setData(T data) {
@@ -74,4 +74,4 @@ public class ApiResponse&lt;T&gt; {
 <span class="nc" id="L74">        this.timestamp = timestamp;</span>
 <span class="nc" id="L75">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

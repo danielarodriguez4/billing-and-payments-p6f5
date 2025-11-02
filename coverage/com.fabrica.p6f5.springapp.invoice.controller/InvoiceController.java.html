@@ -46,14 +46,14 @@ import java.util.List;
     public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; createDraftInvoice(
             @Valid @RequestBody CreateInvoiceRequest request,
             @AuthenticationPrincipal User user) {
-<span class="nc" id="L49">        logger.info(&quot;Creating draft invoice by user: {}&quot;, user.getUsername());</span>
-<span class="nc" id="L50">        InvoiceResponse response = invoiceService.createDraftInvoice(request, user.getId());</span>
-<span class="nc" id="L51">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+<span class="fc" id="L49">        logger.info(&quot;Creating draft invoice by user: {}&quot;, user.getUsername());</span>
+<span class="fc" id="L50">        InvoiceResponse response = invoiceService.createDraftInvoice(request, user.getId());</span>
+<span class="fc" id="L51">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
             true,
             &quot;Draft invoice created successfully&quot;,
             response
         );
-<span class="nc" id="L56">        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);</span>
+<span class="fc" id="L56">        return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);</span>
     }
     
     /**
@@ -100,14 +100,14 @@ import java.util.List;
     @Operation(summary = &quot;Get invoice by ID&quot;, description = &quot;Retrieves an invoice by its ID&quot;)
     public ResponseEntity&lt;ApiResponse&lt;InvoiceResponse&gt;&gt; getInvoiceById(
             @Parameter(description = &quot;Invoice ID&quot;) @PathVariable Long invoiceId) {
-<span class="nc" id="L103">        logger.info(&quot;Getting invoice id: {}&quot;, invoiceId);</span>
-<span class="nc" id="L104">        InvoiceResponse response = invoiceService.getInvoiceById(invoiceId);</span>
-<span class="nc" id="L105">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+<span class="fc" id="L103">        logger.info(&quot;Getting invoice id: {}&quot;, invoiceId);</span>
+<span class="fc" id="L104">        InvoiceResponse response = invoiceService.getInvoiceById(invoiceId);</span>
+<span class="fc" id="L105">        ApiResponse&lt;InvoiceResponse&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
             true,
             &quot;Invoice retrieved successfully&quot;,
             response
         );
-<span class="nc" id="L110">        return ResponseEntity.ok(apiResponse);</span>
+<span class="fc" id="L110">        return ResponseEntity.ok(apiResponse);</span>
     }
     
     /**
@@ -116,14 +116,14 @@ import java.util.List;
     @GetMapping
     @Operation(summary = &quot;Get all invoices&quot;, description = &quot;Retrieves all invoices&quot;)
     public ResponseEntity&lt;ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt;&gt; getAllInvoices() {
-<span class="nc" id="L119">        logger.info(&quot;Getting all invoices&quot;);</span>
-<span class="nc" id="L120">        List&lt;InvoiceResponse&gt; response = invoiceService.getAllInvoices();</span>
-<span class="nc" id="L121">        ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
+<span class="fc" id="L119">        logger.info(&quot;Getting all invoices&quot;);</span>
+<span class="fc" id="L120">        List&lt;InvoiceResponse&gt; response = invoiceService.getAllInvoices();</span>
+<span class="fc" id="L121">        ApiResponse&lt;List&lt;InvoiceResponse&gt;&gt; apiResponse = new ApiResponse&lt;&gt;(</span>
             true,
             &quot;Invoices retrieved successfully&quot;,
             response
         );
-<span class="nc" id="L126">        return ResponseEntity.ok(apiResponse);</span>
+<span class="fc" id="L126">        return ResponseEntity.ok(apiResponse);</span>
     }
     
     /**
@@ -163,4 +163,4 @@ import java.util.List;
     }
 }
 
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

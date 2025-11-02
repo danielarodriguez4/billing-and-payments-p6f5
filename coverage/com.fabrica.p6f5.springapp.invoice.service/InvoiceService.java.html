@@ -57,33 +57,33 @@ import java.util.stream.Collectors;
      */
     @Transactional
     public InvoiceResponse createDraftInvoice(CreateInvoiceRequest request, Long createdBy) {
-<span class="nc" id="L60">        logger.info(&quot;Creating draft invoice for client: {}&quot;, request.getClientName());</span>
+<span class="fc" id="L60">        logger.info(&quot;Creating draft invoice for client: {}&quot;, request.getClientName());</span>
         
         // Generate unique invoice number
-<span class="nc" id="L63">        String invoiceNumber = generateInvoiceNumber();</span>
+<span class="fc" id="L63">        String invoiceNumber = generateInvoiceNumber();</span>
         
         // Create invoice
-<span class="nc" id="L66">        Invoice invoice = new Invoice();</span>
-<span class="nc" id="L67">        invoice.setInvoiceNumber(invoiceNumber);</span>
-<span class="nc" id="L68">        invoice.setClientName(request.getClientName());</span>
-<span class="nc" id="L69">        invoice.setInvoiceDate(request.getInvoiceDate());</span>
-<span class="nc" id="L70">        invoice.setDueDate(request.getDueDate());</span>
-<span class="nc" id="L71">        invoice.setStatus(Invoice.InvoiceStatus.DRAFT);</span>
-<span class="nc" id="L72">        invoice.setCurrency(request.getCurrency());</span>
-<span class="nc" id="L73">        invoice.setCreatedBy(createdBy);</span>
+<span class="fc" id="L66">        Invoice invoice = new Invoice();</span>
+<span class="fc" id="L67">        invoice.setInvoiceNumber(invoiceNumber);</span>
+<span class="fc" id="L68">        invoice.setClientName(request.getClientName());</span>
+<span class="fc" id="L69">        invoice.setInvoiceDate(request.getInvoiceDate());</span>
+<span class="fc" id="L70">        invoice.setDueDate(request.getDueDate());</span>
+<span class="fc" id="L71">        invoice.setStatus(Invoice.InvoiceStatus.DRAFT);</span>
+<span class="fc" id="L72">        invoice.setCurrency(request.getCurrency());</span>
+<span class="fc" id="L73">        invoice.setCreatedBy(createdBy);</span>
         
         // Calculate amounts
-<span class="nc" id="L76">        BigDecimal subtotal = calculateSubtotal(request.getItems());</span>
-<span class="nc" id="L77">        invoice.setSubtotal(subtotal);</span>
-<span class="nc" id="L78">        invoice.setTaxAmount(request.getTaxAmount());</span>
-<span class="nc" id="L79">        invoice.setTotalAmount(subtotal.add(request.getTaxAmount()));</span>
+<span class="fc" id="L76">        BigDecimal subtotal = calculateSubtotal(request.getItems());</span>
+<span class="fc" id="L77">        invoice.setSubtotal(subtotal);</span>
+<span class="fc" id="L78">        invoice.setTaxAmount(request.getTaxAmount());</span>
+<span class="fc" id="L79">        invoice.setTotalAmount(subtotal.add(request.getTaxAmount()));</span>
         
         // Save invoice
-<span class="nc" id="L82">        Invoice savedInvoice = invoiceRepository.save(invoice);</span>
+<span class="fc" id="L82">        Invoice savedInvoice = invoiceRepository.save(invoice);</span>
         
         // Add items
-<span class="nc" id="L85">        List&lt;InvoiceItem&gt; items = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (CreateInvoiceRequest.InvoiceItemRequest itemRequest : request.getItems()) {</span>
+<span class="fc" id="L85">        List&lt;InvoiceItem&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        for (CreateInvoiceRequest.InvoiceItemRequest itemRequest : request.getItems()) {</span>
 <span class="nc" id="L87">            InvoiceItem item = new InvoiceItem();</span>
 <span class="nc" id="L88">            item.setInvoice(savedInvoice);</span>
 <span class="nc" id="L89">            item.setDescription(itemRequest.getDescription());</span>
@@ -99,10 +99,10 @@ import java.util.stream.Collectors;
 <span class="nc" id="L99">                item.setShipment(shipment);</span>
             }
 <span class="nc" id="L101">        }</span>
-<span class="nc" id="L102">        invoiceItemRepository.saveAll(items);</span>
+<span class="fc" id="L102">        invoiceItemRepository.saveAll(items);</span>
         
         // Link shipments
-<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (request.getShipmentIds() != null &amp;&amp; !request.getShipmentIds().isEmpty()) {</span>
+<span class="pc bpc" id="L105" title="3 of 4 branches missed.">        if (request.getShipmentIds() != null &amp;&amp; !request.getShipmentIds().isEmpty()) {</span>
 <span class="nc" id="L106">            List&lt;InvoiceShipment&gt; invoiceShipments = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L107" title="All 2 branches missed.">            for (Long shipmentId : request.getShipmentIds()) {</span>
 <span class="nc" id="L108">                Shipment shipment = shipmentRepository.findById(shipmentId)</span>
@@ -122,12 +122,12 @@ import java.util.stream.Collectors;
         }
         
         // Log audit event
-<span class="nc" id="L125">        auditService.logEvent(&quot;Invoice&quot;, savedInvoice.getId(), AuditLog.AuditAction.CREATE,</span>
+<span class="fc" id="L125">        auditService.logEvent(&quot;Invoice&quot;, savedInvoice.getId(), AuditLog.AuditAction.CREATE,</span>
             createdBy, null, savedInvoice, &quot;Created draft invoice&quot;);
         
-<span class="nc" id="L128">        logger.info(&quot;Draft invoice created with id: {}&quot;, savedInvoice.getId());</span>
+<span class="fc" id="L128">        logger.info(&quot;Draft invoice created with id: {}&quot;, savedInvoice.getId());</span>
         
-<span class="nc" id="L130">        return InvoiceResponse.fromEntity(invoiceRepository.findById(savedInvoice.getId()).get());</span>
+<span class="fc" id="L130">        return InvoiceResponse.fromEntity(invoiceRepository.findById(savedInvoice.getId()).get());</span>
     }
     
     /**
@@ -272,9 +272,9 @@ import java.util.stream.Collectors;
      * Get invoice by ID
      */
     public InvoiceResponse getInvoiceById(Long invoiceId) {
-<span class="nc" id="L275">        Invoice invoice = invoiceRepository.findById(invoiceId)</span>
-<span class="nc" id="L276">            .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Invoice not found with id: &quot; + invoiceId));</span>
-<span class="nc" id="L277">        return InvoiceResponse.fromEntity(invoice);</span>
+<span class="fc" id="L275">        Invoice invoice = invoiceRepository.findById(invoiceId)</span>
+<span class="fc" id="L276">            .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Invoice not found with id: &quot; + invoiceId));</span>
+<span class="fc" id="L277">        return InvoiceResponse.fromEntity(invoice);</span>
     }
     
     /**
@@ -299,8 +299,8 @@ import java.util.stream.Collectors;
      * Calculate subtotal from items
      */
     private BigDecimal calculateSubtotal(List&lt;?&gt; items) {
-<span class="nc bnc" id="L302" title="All 4 branches missed.">        if (items == null || items.isEmpty()) {</span>
-<span class="nc" id="L303">            return BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L302" title="2 of 4 branches missed.">        if (items == null || items.isEmpty()) {</span>
+<span class="fc" id="L303">            return BigDecimal.ZERO;</span>
         }
 <span class="nc" id="L305">        return items.stream()</span>
 <span class="nc" id="L306">            .map(item -&gt; {</span>
@@ -324,7 +324,7 @@ import java.util.stream.Collectors;
      * Generate unique invoice number
      */
     private String generateInvoiceNumber() {
-<span class="nc" id="L327">        return &quot;INV-&quot; + UUID.randomUUID().toString().substring(0, 8).toUpperCase() + &quot;-&quot; + System.currentTimeMillis();</span>
+<span class="fc" id="L327">        return &quot;INV-&quot; + UUID.randomUUID().toString().substring(0, 8).toUpperCase() + &quot;-&quot; + System.currentTimeMillis();</span>
     }
     
     /**
@@ -358,4 +358,4 @@ import java.util.stream.Collectors;
     }
 }
 
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

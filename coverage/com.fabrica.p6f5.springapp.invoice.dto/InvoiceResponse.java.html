@@ -42,37 +42,37 @@ public class InvoiceResponse {
      * Convert Invoice entity to InvoiceResponse DTO
      */
     public static InvoiceResponse fromEntity(Invoice invoice) {
-<span class="nc" id="L45">        InvoiceResponse response = new InvoiceResponse();</span>
-<span class="nc" id="L46">        response.setId(invoice.getId());</span>
-<span class="nc" id="L47">        response.setFiscalFolio(invoice.getFiscalFolio());</span>
-<span class="nc" id="L48">        response.setInvoiceNumber(invoice.getInvoiceNumber());</span>
-<span class="nc" id="L49">        response.setClientName(invoice.getClientName());</span>
-<span class="nc" id="L50">        response.setInvoiceDate(invoice.getInvoiceDate());</span>
-<span class="nc" id="L51">        response.setDueDate(invoice.getDueDate());</span>
-<span class="nc" id="L52">        response.setSubtotal(invoice.getSubtotal());</span>
-<span class="nc" id="L53">        response.setTaxAmount(invoice.getTaxAmount());</span>
-<span class="nc" id="L54">        response.setTotalAmount(invoice.getTotalAmount());</span>
-<span class="nc" id="L55">        response.setCurrency(invoice.getCurrency());</span>
-<span class="nc" id="L56">        response.setStatus(invoice.getStatus().toString());</span>
-<span class="nc" id="L57">        response.setPdfUrl(invoice.getPdfUrl());</span>
-<span class="nc" id="L58">        response.setCreatedBy(invoice.getCreatedBy());</span>
-<span class="nc" id="L59">        response.setCreatedAt(invoice.getCreatedAt());</span>
-<span class="nc" id="L60">        response.setUpdatedAt(invoice.getUpdatedAt());</span>
-<span class="nc" id="L61">        response.setVersion(invoice.getVersion());</span>
+<span class="fc" id="L45">        InvoiceResponse response = new InvoiceResponse();</span>
+<span class="fc" id="L46">        response.setId(invoice.getId());</span>
+<span class="fc" id="L47">        response.setFiscalFolio(invoice.getFiscalFolio());</span>
+<span class="fc" id="L48">        response.setInvoiceNumber(invoice.getInvoiceNumber());</span>
+<span class="fc" id="L49">        response.setClientName(invoice.getClientName());</span>
+<span class="fc" id="L50">        response.setInvoiceDate(invoice.getInvoiceDate());</span>
+<span class="fc" id="L51">        response.setDueDate(invoice.getDueDate());</span>
+<span class="fc" id="L52">        response.setSubtotal(invoice.getSubtotal());</span>
+<span class="fc" id="L53">        response.setTaxAmount(invoice.getTaxAmount());</span>
+<span class="fc" id="L54">        response.setTotalAmount(invoice.getTotalAmount());</span>
+<span class="fc" id="L55">        response.setCurrency(invoice.getCurrency());</span>
+<span class="fc" id="L56">        response.setStatus(invoice.getStatus().toString());</span>
+<span class="fc" id="L57">        response.setPdfUrl(invoice.getPdfUrl());</span>
+<span class="fc" id="L58">        response.setCreatedBy(invoice.getCreatedBy());</span>
+<span class="fc" id="L59">        response.setCreatedAt(invoice.getCreatedAt());</span>
+<span class="fc" id="L60">        response.setUpdatedAt(invoice.getUpdatedAt());</span>
+<span class="fc" id="L61">        response.setVersion(invoice.getVersion());</span>
         
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (invoice.getItems() != null) {</span>
-<span class="nc" id="L64">            response.setItems(invoice.getItems().stream()</span>
-<span class="nc" id="L65">                .map(InvoiceItemResponse::fromEntity)</span>
-<span class="nc" id="L66">                .collect(Collectors.toList()));</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (invoice.getItems() != null) {</span>
+<span class="fc" id="L64">            response.setItems(invoice.getItems().stream()</span>
+<span class="fc" id="L65">                .map(InvoiceItemResponse::fromEntity)</span>
+<span class="fc" id="L66">                .collect(Collectors.toList()));</span>
         }
         
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (invoice.getShipments() != null) {</span>
-<span class="nc" id="L70">            response.setShipmentIds(invoice.getShipments().stream()</span>
-<span class="nc" id="L71">                .map(is -&gt; is.getShipment().getId())</span>
-<span class="nc" id="L72">                .collect(Collectors.toList()));</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (invoice.getShipments() != null) {</span>
+<span class="fc" id="L70">            response.setShipmentIds(invoice.getShipments().stream()</span>
+<span class="pc" id="L71">                .map(is -&gt; is.getShipment().getId())</span>
+<span class="fc" id="L72">                .collect(Collectors.toList()));</span>
         }
         
-<span class="nc" id="L75">        return response;</span>
+<span class="fc" id="L75">        return response;</span>
     }
     
     /**
@@ -108,4 +108,4 @@ public class InvoiceResponse {
     }
 }
 
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
