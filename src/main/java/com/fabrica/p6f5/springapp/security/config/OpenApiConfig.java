@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.config;
+package com.fabrica.p6f5.springapp.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

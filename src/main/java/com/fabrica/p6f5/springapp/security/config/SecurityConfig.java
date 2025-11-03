@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.config;
+package com.fabrica.p6f5.springapp.security.config;
 
 import com.fabrica.p6f5.springapp.security.JwtAuthenticationEntryPoint;
 import com.fabrica.p6f5.springapp.security.JwtAuthenticationFilter;
