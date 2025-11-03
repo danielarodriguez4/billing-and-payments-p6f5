@@ -50,6 +50,7 @@ public class User implements UserDetails {
     // Role field removed to match database schema
     
     @Column(name = "is_active")
+    @Builder.Default
     private Boolean isActive = true;
     
     @Column(name = "created_at")
