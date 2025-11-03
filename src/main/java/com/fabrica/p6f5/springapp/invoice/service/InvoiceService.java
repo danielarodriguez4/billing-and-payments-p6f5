@@ -306,14 +306,18 @@ public class InvoiceService {
             .map(item -> {
                 BigDecimal unitPrice;
                 Integer quantity;
-                if (item instanceof CreateInvoiceRequest.InvoiceItemRequest req) {
-                    unitPrice = req.getUnitPrice();
-                    quantity = req.getQuantity();
-                } else if (item instanceof UpdateInvoiceRequest.InvoiceItemRequest req) {
-                    unitPrice = req.getUnitPrice();
-                    quantity = req.getQuantity();
-                } else {
-                    return BigDecimal.ZERO;
+                switch (item) {
+                    case CreateInvoiceRequest.InvoiceItemRequest req -> {
+                        unitPrice = req.getUnitPrice();
+                        quantity = req.getQuantity();
+                    }
+                    case UpdateInvoiceRequest.InvoiceItemRequest req -> {
+                        unitPrice = req.getUnitPrice();
+                        quantity = req.getQuantity();
+                    }
+                    default -> {
+                        return BigDecimal.ZERO;
+                    }
                 }
                 return unitPrice.multiply(BigDecimal.valueOf(quantity));
             })
