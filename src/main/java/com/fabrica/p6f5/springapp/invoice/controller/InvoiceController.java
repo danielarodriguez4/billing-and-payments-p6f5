@@ -1,6 +1,7 @@
 package com.fabrica.p6f5.springapp.invoice.controller;
 
 import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.pdf.service.PdfService;
 import com.fabrica.p6f5.springapp.user.model.User;
 import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
@@ -32,12 +33,15 @@ public class InvoiceController {
     
     private static final Logger logger = LoggerFactory.getLogger(InvoiceController.class);
     
+    private final InvoiceService invoiceService;
+    private final PdfService pdfService;
+
     @Autowired
-    private InvoiceService invoiceService;
-    
-    @Autowired
-    private com.fabrica.p6f5.springapp.pdf.service.PdfService pdfService;
-    
+    public InvoiceController(InvoiceService invoiceService, PdfService pdfService) {
+        this.invoiceService = invoiceService;
+        this.pdfService = pdfService;
+    }
+
     /**
      * Create a draft invoice
      */
