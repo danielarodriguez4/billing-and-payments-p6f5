@@ -45,47 +45,15 @@ jobs:
       - name: Run tests with coverage
         run: ./gradlew clean test jacocoTestReport --no-daemon
 
-      - name: Generate JaCoCo Badge
-        id: jacoco
-        uses: cicirello/jacoco-badge-generator@v2
-        with:
-          badges-directory: .github/badges
-          generate-branches-badge: true
-          generate-summary: true
-          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
-          coverage-badge-filename: coverage.svg
-          branches-badge-filename: branches.svg
-
-      - name: Upload coverage HTML report
+      - name: Upload JaCoCo reports (HTML + XML)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: build/reports/jacoco/test/html/
+          name: jacoco-reports
+          path: |
+            build/reports/jacoco/test/html/
+            build/reports/jacoco/test/jacocoTestReport.xml
           retention-days: 30
-
-      - name: Upload coverage XML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-xml
-          path: build/reports/jacoco/test/jacocoTestReport.xml
-          retention-days: 30
-
-      - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.1
-        with:
-          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 80
-
-      - name: Upload coverage report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/reports/jacoco/test/html
-          destination_dir: coverage
 
       - name: SonarCloud Analysis
         env:
