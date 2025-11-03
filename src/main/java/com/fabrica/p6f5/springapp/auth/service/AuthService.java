@@ -3,6 +3,8 @@ package com.fabrica.p6f5.springapp.auth.service;
 import com.fabrica.p6f5.springapp.auth.dto.AuthResponse;
 import com.fabrica.p6f5.springapp.auth.dto.LoginRequest;
 import com.fabrica.p6f5.springapp.auth.dto.RegisterRequest;
+import com.fabrica.p6f5.springapp.auth.exception.EmailAlreadyTakenException;
+import com.fabrica.p6f5.springapp.auth.exception.UsernameAlreadyTakenException;
 import com.fabrica.p6f5.springapp.user.model.User;
 import com.fabrica.p6f5.springapp.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +45,11 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         // Check if user already exists
         if (userService.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username is already taken!");
+            throw new UsernameAlreadyTakenException("Username is already taken!");
         }
         
         if (userService.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email is already in use!");
+            throw new EmailAlreadyTakenException("Email is already in use!");
         }
         
         // Create new user
