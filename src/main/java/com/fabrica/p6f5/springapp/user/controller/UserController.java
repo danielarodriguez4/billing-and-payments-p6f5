@@ -20,9 +20,13 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class UserController {
     
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
-    
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     /**
      * Get all users (Admin only).
      * 
