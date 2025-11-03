@@ -1,6 +1,6 @@
 package com.fabrica.p6f5.springapp.factory;
 
-import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.user.model.User;
 import net.datafaker.Faker;
 
 public class FakeUserFactory {
@@ -8,7 +8,7 @@ public class FakeUserFactory {
     private final Faker faker = new Faker();
 
     public User createFakeUser() {
-        return com.fabrica.p6f5.springapp.entity.User.builder()
+        return User.builder()
                 .id(faker.number().randomNumber())
                 .username(faker.name().username())
                 .email(faker.internet().emailAddress())

@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.entity;
+package com.fabrica.p6f5.springapp.user.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

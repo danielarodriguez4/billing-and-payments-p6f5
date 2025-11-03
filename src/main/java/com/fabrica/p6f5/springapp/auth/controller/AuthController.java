@@ -1,11 +1,11 @@
-package com.fabrica.p6f5.springapp.controller;
+package com.fabrica.p6f5.springapp.auth.controller;
 
 import com.fabrica.p6f5.springapp.dto.ApiResponse;
 import com.fabrica.p6f5.springapp.dto.AuthResponse;
 import com.fabrica.p6f5.springapp.dto.LoginRequest;
 import com.fabrica.p6f5.springapp.dto.RegisterRequest;
-import com.fabrica.p6f5.springapp.entity.User;
-import com.fabrica.p6f5.springapp.service.AuthService;
+import com.fabrica.p6f5.springapp.user.model.User;
+import com.fabrica.p6f5.springapp.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

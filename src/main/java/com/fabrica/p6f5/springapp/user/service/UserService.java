@@ -1,7 +1,7 @@
-package com.fabrica.p6f5.springapp.service;
+package com.fabrica.p6f5.springapp.user.service;
 
-import com.fabrica.p6f5.springapp.entity.User;
-import com.fabrica.p6f5.springapp.repository.UserRepository;
+import com.fabrica.p6f5.springapp.user.model.User;
+import com.fabrica.p6f5.springapp.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

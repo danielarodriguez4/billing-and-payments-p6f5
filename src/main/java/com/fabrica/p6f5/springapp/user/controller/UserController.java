@@ -1,8 +1,8 @@
-package com.fabrica.p6f5.springapp.controller;
+package com.fabrica.p6f5.springapp.user.controller;
 
 import com.fabrica.p6f5.springapp.dto.ApiResponse;
-import com.fabrica.p6f5.springapp.entity.User;
-import com.fabrica.p6f5.springapp.service.UserService;
+import com.fabrica.p6f5.springapp.user.model.User;
+import com.fabrica.p6f5.springapp.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

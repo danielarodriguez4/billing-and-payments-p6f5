@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.service;
+package com.fabrica.p6f5.springapp.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

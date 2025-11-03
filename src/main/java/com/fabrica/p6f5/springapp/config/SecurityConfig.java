@@ -2,7 +2,7 @@ package com.fabrica.p6f5.springapp.config;
 
 import com.fabrica.p6f5.springapp.security.JwtAuthenticationEntryPoint;
 import com.fabrica.p6f5.springapp.security.JwtAuthenticationFilter;
-import com.fabrica.p6f5.springapp.service.UserService;
+import com.fabrica.p6f5.springapp.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,7 +1,7 @@
 package com.fabrica.p6f5.springapp.security;
 
-import com.fabrica.p6f5.springapp.service.JwtService;
-import com.fabrica.p6f5.springapp.service.UserService;
+import com.fabrica.p6f5.springapp.auth.service.JwtService;
+import com.fabrica.p6f5.springapp.user.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

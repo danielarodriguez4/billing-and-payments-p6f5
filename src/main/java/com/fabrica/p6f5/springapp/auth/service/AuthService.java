@@ -1,9 +1,10 @@
-package com.fabrica.p6f5.springapp.service;
+package com.fabrica.p6f5.springapp.auth.service;
 
 import com.fabrica.p6f5.springapp.dto.AuthResponse;
 import com.fabrica.p6f5.springapp.dto.LoginRequest;
 import com.fabrica.p6f5.springapp.dto.RegisterRequest;
-import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.user.model.User;
+import com.fabrica.p6f5.springapp.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

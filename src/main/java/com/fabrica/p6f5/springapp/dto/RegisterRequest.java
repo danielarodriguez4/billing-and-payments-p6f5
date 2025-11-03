@@ -1,6 +1,6 @@
 package com.fabrica.p6f5.springapp.dto;
 
-import com.fabrica.p6f5.springapp.entity.User;
+import com.fabrica.p6f5.springapp.user.model.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
