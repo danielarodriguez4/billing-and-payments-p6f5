@@ -21,12 +21,15 @@ public class PdfService {
     
     private static final Logger logger = LoggerFactory.getLogger(PdfService.class);
     
+    private final InvoiceRepository invoiceRepository;
+    private final PdfLogRepository pdfLogRepository;
+
     @Autowired
-    private InvoiceRepository invoiceRepository;
-    
-    @Autowired
-    private PdfLogRepository pdfLogRepository;
-    
+    public PdfService(InvoiceRepository invoiceRepository, PdfLogRepository pdfLogRepository) {
+        this.invoiceRepository = invoiceRepository;
+        this.pdfLogRepository = pdfLogRepository;
+    }
+
     /**
      * Generate PDF for an invoice
      */

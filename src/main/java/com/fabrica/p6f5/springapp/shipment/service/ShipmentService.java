@@ -11,9 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class ShipmentService {
     
+    private final ShipmentRepository shipmentRepository;
+
     @Autowired
-    private ShipmentRepository shipmentRepository;
-    
+    public ShipmentService(ShipmentRepository shipmentRepository) {
+        this.shipmentRepository = shipmentRepository;
+    }
+
     // Business logic methods can be added here as needed
 }
 

@@ -1,5 +1,6 @@
 package com.fabrica.p6f5.springapp.audit.service;
 
+import com.fabrica.p6f5.springapp.audit.exception.LoggedFailedException;
 import com.fabrica.p6f5.springapp.audit.model.AuditLog;
 import com.fabrica.p6f5.springapp.audit.model.InvoiceHistory;
 import com.fabrica.p6f5.springapp.audit.repository.AuditLogRepository;
@@ -22,16 +23,17 @@ import java.util.Optional;
 public class AuditService {
     
     private static final Logger logger = LoggerFactory.getLogger(AuditService.class);
-    
+    private final AuditLogRepository auditLogRepository;
+    private final InvoiceHistoryRepository invoiceHistoryRepository;
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    private AuditLogRepository auditLogRepository;
-    
-    @Autowired
-    private InvoiceHistoryRepository invoiceHistoryRepository;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
-    
+    public AuditService(AuditLogRepository auditLogRepository, InvoiceHistoryRepository invoiceHistoryRepository, ObjectMapper objectMapper) {
+        this.auditLogRepository = auditLogRepository;
+        this.invoiceHistoryRepository = invoiceHistoryRepository;
+        this.objectMapper = objectMapper;
+    }
+
     /**
      * Log an audit event
      */
@@ -56,7 +58,7 @@ public class AuditService {
             return auditLogRepository.save(auditLog);
         } catch (Exception e) {
             logger.error("Error logging audit event: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to log audit event", e);
+            throw new LoggedFailedException("Failed to log audit event", e);
         }
     }
     
@@ -78,7 +80,7 @@ public class AuditService {
             return invoiceHistoryRepository.save(history);
         } catch (Exception e) {
             logger.error("Error saving invoice history: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to save invoice history", e);
+            throw new LoggedFailedException("Failed to save invoice history", e);
         }
     }
     

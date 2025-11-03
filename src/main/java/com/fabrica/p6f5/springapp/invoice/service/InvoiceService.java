@@ -37,21 +37,21 @@ public class InvoiceService {
     
     private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);
     
+    private final InvoiceRepository invoiceRepository;
+    private final InvoiceItemRepository invoiceItemRepository;
+    private final InvoiceShipmentRepository invoiceShipmentRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final AuditService auditService;
+
     @Autowired
-    private InvoiceRepository invoiceRepository;
-    
-    @Autowired
-    private InvoiceItemRepository invoiceItemRepository;
-    
-    @Autowired
-    private InvoiceShipmentRepository invoiceShipmentRepository;
-    
-    @Autowired
-    private ShipmentRepository shipmentRepository;
-    
-    @Autowired
-    private AuditService auditService;
-    
+    public InvoiceService(InvoiceRepository invoiceRepository, InvoiceItemRepository invoiceItemRepository, InvoiceShipmentRepository invoiceShipmentRepository, ShipmentRepository shipmentRepository, AuditService auditService) {
+        this.invoiceRepository = invoiceRepository;
+        this.invoiceItemRepository = invoiceItemRepository;
+        this.invoiceShipmentRepository = invoiceShipmentRepository;
+        this.shipmentRepository = shipmentRepository;
+        this.auditService = auditService;
+    }
+
     /**
      * Create a draft invoice
      */

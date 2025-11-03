@@ -24,9 +24,13 @@ import java.util.stream.Collectors;
 @Tag(name = "Invoice History API", description = "API for managing invoice history")
 public class InvoiceHistoryController {
     
+    private final AuditService auditService;
+
     @Autowired
-    private AuditService auditService;
-    
+    public InvoiceHistoryController(AuditService auditService) {
+        this.auditService = auditService;
+    }
+
     /**
      * Get invoice history
      */

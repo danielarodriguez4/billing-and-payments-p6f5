@@ -21,9 +21,13 @@ import java.util.List;
 @Tag(name = "Shipment API", description = "API for managing shipments")
 public class ShipmentController {
     
+    private final ShipmentRepository shipmentRepository;
+
     @Autowired
-    private ShipmentRepository shipmentRepository;
-    
+    public ShipmentController(ShipmentRepository shipmentRepository) {
+        this.shipmentRepository = shipmentRepository;
+    }
+
     /**
      * Get all shipments
      */
