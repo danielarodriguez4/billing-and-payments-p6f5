@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.exception;
+package com.fabrica.p6f5.springapp.common.exception;
 
 /**
  * Exception for business logic violations.

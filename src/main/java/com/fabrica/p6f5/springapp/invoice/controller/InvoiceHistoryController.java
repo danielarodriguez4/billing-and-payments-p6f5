@@ -2,7 +2,7 @@ package com.fabrica.p6f5.springapp.invoice.controller;
 
 import com.fabrica.p6f5.springapp.audit.model.InvoiceHistory;
 import com.fabrica.p6f5.springapp.audit.service.AuditService;
-import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceHistoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

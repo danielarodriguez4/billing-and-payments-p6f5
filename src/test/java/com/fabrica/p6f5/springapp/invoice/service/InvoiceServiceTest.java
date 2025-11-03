@@ -1,7 +1,7 @@
 package com.fabrica.p6f5.springapp.invoice.service;
 
 import com.fabrica.p6f5.springapp.audit.service.AuditService;
-import com.fabrica.p6f5.springapp.exception.ResourceNotFoundException;
+import com.fabrica.p6f5.springapp.common.exception.ResourceNotFoundException;
 import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
 import com.fabrica.p6f5.springapp.invoice.model.Invoice;

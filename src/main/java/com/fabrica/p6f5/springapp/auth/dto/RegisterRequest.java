@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.dto;
+package com.fabrica.p6f5.springapp.auth.dto;
 
 import com.fabrica.p6f5.springapp.user.model.User;
 import jakarta.validation.constraints.Email;

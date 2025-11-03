@@ -4,7 +4,7 @@ import com.fabrica.p6f5.springapp.factory.FakeUserFactory;
 import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;
 import com.fabrica.p6f5.springapp.invoice.service.InvoiceService;
-import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
-package com.fabrica.p6f5.springapp.exception;
+package com.fabrica.p6f5.springapp.common.exception;
 
-import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

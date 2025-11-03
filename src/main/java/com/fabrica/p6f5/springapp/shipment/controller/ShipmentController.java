@@ -1,6 +1,6 @@
 package com.fabrica.p6f5.springapp.shipment.controller;
 
-import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
 import com.fabrica.p6f5.springapp.shipment.model.Shipment;
 import com.fabrica.p6f5.springapp.shipment.repository.ShipmentRepository;
 import io.swagger.v3.oas.annotations.Operation;

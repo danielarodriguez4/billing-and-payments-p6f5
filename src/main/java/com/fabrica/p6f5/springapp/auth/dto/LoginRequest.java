@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.dto;
+package com.fabrica.p6f5.springapp.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

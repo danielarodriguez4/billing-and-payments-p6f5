@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.dto;
+package com.fabrica.p6f5.springapp.common.dto;
 
 /**
  * Generic API response DTO.

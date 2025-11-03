@@ -1,6 +1,6 @@
 package com.fabrica.p6f5.springapp.invoice.controller;
 
-import com.fabrica.p6f5.springapp.dto.ApiResponse;
+import com.fabrica.p6f5.springapp.common.dto.ApiResponse;
 import com.fabrica.p6f5.springapp.user.model.User;
 import com.fabrica.p6f5.springapp.invoice.dto.CreateInvoiceRequest;
 import com.fabrica.p6f5.springapp.invoice.dto.InvoiceResponse;

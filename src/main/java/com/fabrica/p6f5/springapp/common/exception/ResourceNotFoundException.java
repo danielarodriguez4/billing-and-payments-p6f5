@@ -1,4 +1,4 @@
-package com.fabrica.p6f5.springapp.exception;
+package com.fabrica.p6f5.springapp.common.exception;
 
 /**
  * Exception thrown when a requested resource is not found.

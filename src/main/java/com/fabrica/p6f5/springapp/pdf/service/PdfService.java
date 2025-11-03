@@ -1,7 +1,7 @@
 package com.fabrica.p6f5.springapp.pdf.service;
 
-import com.fabrica.p6f5.springapp.exception.BusinessException;
-import com.fabrica.p6f5.springapp.exception.ResourceNotFoundException;
+import com.fabrica.p6f5.springapp.common.exception.BusinessException;
+import com.fabrica.p6f5.springapp.common.exception.ResourceNotFoundException;
 import com.fabrica.p6f5.springapp.invoice.model.Invoice;
 import com.fabrica.p6f5.springapp.invoice.repository.InvoiceRepository;
 import com.fabrica.p6f5.springapp.pdf.model.PdfLog;
