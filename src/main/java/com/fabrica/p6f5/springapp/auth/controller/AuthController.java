@@ -23,9 +23,13 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class AuthController {
     
+    private final AuthService authService;
+
     @Autowired
-    private AuthService authService;
-    
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
     /**
      * Register a new user.
      * 
